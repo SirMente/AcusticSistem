@@ -1,42 +1,45 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package Controllers;
+// Archivo: LoginController.java
+package controllers; // Usa tu paquete de controladores
 
 import models.Usuario;
 import models.DAO.UsuarioDAO;
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import jakarta.servlet.http.HttpSession; // O javax.servlet.http si usas Spring Boot 2
 
-@WebServlet("/login")
-public class LoginController extends HttpServlet {
+@Controller // Indica que esta clase es un controlador de Spring MVC
+public class LoginController {
 
-    private UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private UsuarioDAO usuarioDAO = new UsuarioDAO(); 
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        request.getRequestDispatcher("WEB-INF/views/login.jsp").forward(request, response);
+    // Mapea la solicitud GET a /login (para mostrar el formulario)
+    @GetMapping("/login")
+    public String mostrarLogin() {
+        // Retorna el nombre de la vista (Spring buscará /WEB-INF/views/login.jsp)
+        return "login"; 
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String usuario = request.getParameter("usuario");
-        String password = request.getParameter("password");
+    // Mapea la solicitud POST a /login (para procesar el formulario)
+    @PostMapping("/login")
+    public String procesarLogin(
+            @RequestParam("usuario") String usuario, // Captura el parámetro 'usuario' del formulario
+            @RequestParam("password") String password, // Captura el parámetro 'password'
+            HttpSession session,
+            Model model) { // Objeto para pasar datos a la vista
 
         Usuario u = usuarioDAO.validar(usuario, password);
 
         if (u != null) {
-            HttpSession sesion = request.getSession();
-            sesion.setAttribute("usuario", u.getUsuario());
-            response.sendRedirect("home.jsp"); // o a tu menú principal
+            session.setAttribute("usuario", u.getUsuario());
+            // Redirección a la URL del Dashboard Controller
+            return "redirect:/dashboard"; 
         } else {
-            request.setAttribute("error", "Usuario o contraseña incorrectos");
-            request.getRequestDispatcher("WEB-INF/views/login.jsp").forward(request, response);
+            model.addAttribute("error", "Usuario o contraseña incorrectos");
+            // Vuelve a la vista de login para mostrar el error
+            return "login"; 
         }
     }
 }
