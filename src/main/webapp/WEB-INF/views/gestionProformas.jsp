@@ -26,7 +26,7 @@
             <nav>
                 <ul class="navbar" id="navbar">
                     <li><a href="<%= request.getContextPath()%>/Dashboard">Inicio</a></li>
-                    <li><a href="<%= request.getContextPath()%>/Inventario">Inventario</a></li>
+                    <li><a href="<%= request.getContextPath()%>/InventarioController">Inventario</a></li>
                     <li><a href="<%= request.getContextPath()%>/Finanzas" class="active">Finanzas</a></li>
                     <li><a href="<%= request.getContextPath()%>/Proyectos">Proyectos</a></li>
                     <li><a href="<%= request.getContextPath()%>/GestionProformas">Proformas</a></li>

@@ -16,6 +16,14 @@
         <servlet-name>ClienteDataServlet</servlet-name>
         <servlet-class>Controllers.ClienteDataServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ProveedorController</servlet-name>
+        <servlet-class>Controllers.ProveedorController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>InventarioController</servlet-name>
+        <servlet-class>Controllers.InventarioController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>DashboardController</servlet-name>
         <url-pattern>/DashboardController</url-pattern>
@@ -31,6 +39,14 @@
     <servlet-mapping>
         <servlet-name>ClienteDataServlet</servlet-name>
         <url-pattern>/ClienteDataServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ProveedorController</servlet-name>
+        <url-pattern>/ProveedorController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>InventarioController</servlet-name>
+        <url-pattern>/InventarioController</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
