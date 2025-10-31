@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 package Controllers;
 
 import java.io.IOException;
@@ -23,5 +24,20 @@ public class DashboardController extends HttpServlet {
 
         // Carga y muestra la vista del Dashboard (usa forward)
         request.getRequestDispatcher("WEB-INF/views/dashboard.jsp").forward(request, response);
+=======
+// Archivo: DashboardController.java
+package controllers;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class DashboardController {
+
+    @GetMapping("/dashboard")
+    public String mostrarDashboard() {
+        // Retorna el nombre de la vista (Spring buscará /WEB-INF/views/dashboard.jsp)
+        return "dashboard"; 
+>>>>>>> d98825eb0d5aa8b5aa06635a1770d7dbaa48e993
     }
 }
