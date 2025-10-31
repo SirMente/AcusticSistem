@@ -1,0 +1,14 @@
+# Archivos de Maven
+target/
+logs/
+
+# Configuración del IDE
+.nbproject/private/
+build/
+dist/
+*.iml
+*.class
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
