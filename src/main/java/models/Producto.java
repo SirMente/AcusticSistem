@@ -1,30 +1,37 @@
-package com.acustica.modelos;
+package models;
 
 public class Producto {
 
     private int id;
     private String nombre;
-    private String descripcion; // 🔑 Nuevo Campo
+    private String descripcion; 
     private int cantidad;
-    private double precioUnitario; // 🔑 Nombre Actualizado (antes costo)
+    private double precioUnitario; 
     private String proveedor;
+    private String imagenUrl;
+
+    // CONSTRUCTOR VACÍO 
+    public Producto() {
+        // Necesario para que el ProductoDAO pueda hacer: Producto p = new Producto();
+    }
 
     // Constructor completo
-    public Producto(int id, String nombre, String descripcion, int cantidad, double precioUnitario, String proveedor) {
+    public Producto(int id, String nombre, String descripcion, int cantidad, double precioUnitario, String proveedor, String imagenUrl) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.cantidad = cantidad;
         this.precioUnitario = precioUnitario;
         this.proveedor = proveedor;
+        this.imagenUrl = imagenUrl;
     }
 
     // Constructor para productos nuevos (sin ID)
-    public Producto(String nombre, String descripcion, int cantidad, double precioUnitario, String proveedor) {
-        this(0, nombre, descripcion, cantidad, precioUnitario, proveedor); // ID 0 temporal
+    public Producto(String nombre, String descripcion, int cantidad, double precioUnitario, String proveedor, String imagenUrl) {
+        this(0, nombre, descripcion, cantidad, precioUnitario, proveedor, imagenUrl); // ID 0 temporal
     }
 
-    // Getters y Setters (Asegúrate de incluirlos todos en tu archivo real)
+    // Getters y Setters
     public int getId() {
         return id;
     }
@@ -43,7 +50,7 @@ public class Producto {
 
     public String getDescripcion() {
         return descripcion;
-    } // 🔑 Getter de Descripción
+    }
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
@@ -59,7 +66,7 @@ public class Producto {
 
     public double getPrecioUnitario() {
         return precioUnitario;
-    } // 🔑 Getter de Precio Unitario
+    }
 
     public void setPrecioUnitario(double precioUnitario) {
         this.precioUnitario = precioUnitario;
@@ -71,5 +78,13 @@ public class Producto {
 
     public void setProveedor(String proveedor) {
         this.proveedor = proveedor;
+    }
+
+    public String getImagenUrl() {
+        return imagenUrl;
+    }
+
+    public void setImagenUrl(String imagenUrl) {
+        this.imagenUrl = imagenUrl;
     }
 }

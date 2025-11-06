@@ -60,7 +60,7 @@
 
                     <li><a href="<%= request.getContextPath()%>/dashboard">Inicio</a></li>
 
-                    <li><a href="<%= request.getContextPath()%>/Inventario">Inventario</a></li>
+                    <li><a href="<%= request.getContextPath()%>/InventarioController">Inventario</a></li>
 
                     <li><a href="<%= request.getContextPath()%>/Finanzas" class="active">Finanzas</a></li>
 

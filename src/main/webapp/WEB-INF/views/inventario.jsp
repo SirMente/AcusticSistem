@@ -1,4 +1,4 @@
-<%@page import="com.acustica.modelos.Producto"%>
+<%@page import="models.Producto"%>
 <%@page import="java.util.List"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%

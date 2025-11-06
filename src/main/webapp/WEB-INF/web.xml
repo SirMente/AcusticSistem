@@ -24,36 +24,13 @@
         <servlet-name>InventarioController</servlet-name>
         <servlet-class>Controllers.InventarioController</servlet-class>
     </servlet>
-    <servlet-mapping>
-        <servlet-name>DashboardController</servlet-name>
-        <url-pattern>/DashboardController</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>GestionClientesController</servlet-name>
-        <url-pattern>/GestionClientesController</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ProformaController</servlet-name>
-        <url-pattern>/ProformaController</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ClienteDataServlet</servlet-name>
-        <url-pattern>/ClienteDataServlet</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ProveedorController</servlet-name>
-        <url-pattern>/ProveedorController</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>InventarioController</servlet-name>
-        <url-pattern>/InventarioController</url-pattern>
-    </servlet-mapping>
+    
     <session-config>
         <session-timeout>
             30
         </session-timeout>
     </session-config>
     <welcome-file-list>
-        <welcome-file>login</welcome-file>
+        <welcome-file>login.jsp</welcome-file>
     </welcome-file-list>
 </web-app>
