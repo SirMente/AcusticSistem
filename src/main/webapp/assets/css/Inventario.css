@@ -1,3 +1,5 @@
+/* Inventario.css (CORREGIDO) */
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 * {
@@ -25,6 +27,8 @@ main.inventory-container {
     margin-right: auto;
     padding: 40px;
 }
+
+/* ... (Reglas de inventario-header, add-btn, search-box, inventory-table) ... */
 
 .inventory-header {
     display: flex;
@@ -132,8 +136,12 @@ main.inventory-container {
     color: #000;
 }
 
+
+/* --- CORRECCIÓN CLAVE DEL MODAL --- */
+
 .modal-overlay {
-    display: none; 
+    /* Estado inicial: Oculto */
+    display: none; /* Se oculta por defecto */
     position: fixed;
     top: 0;
     left: 0;
@@ -141,37 +149,21 @@ main.inventory-container {
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
+    
+    /* Centrado */
     justify-content: center;
     align-items: center;
+    
+    /* Transiciones */
     z-index: 2000;
     opacity: 0;
     transition: opacity 0.3s ease-out;
 }
 
 .modal-overlay.active {
-    display: flex;
-    opacity: 1;
-}
-
-.modal-overlay {
-    display: none; 
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-    opacity: 0;
-    transition: opacity 0.3s ease-out;
-}
-
-.modal-overlay.active {
-    display: flex;
-    opacity: 1;
+    /* Estado visible (activado por JavaScript) */
+    display: flex; /* Se hace visible, usando flex para centrar */
+    opacity: 1; /* Se hace completamente visible */
 }
 
 .modal-content {
@@ -188,9 +180,12 @@ main.inventory-container {
     overflow-y: auto;
 }
 
+/* 🔑 CORRECCIÓN: La transformación en el estado activo para la animación */
 .modal-overlay.active .modal-content {
-    transform: scale();
+    transform: scale(1); /* Vuelve a tamaño normal */
 }
+
+/* ... (Reglas de modal-header, close-btn, modal-body, submit-btn) ... */
 
 .modal-header {
      display: flex;
@@ -244,7 +239,9 @@ main.inventory-container {
 
 
 .modal-body input[type="text"],
-.modal-body input[type="number"] {
+.modal-body input[type="number"],
+.modal-body textarea, /* Añadido: incluye textarea para consistencia */
+.modal-body select { /* Añadido: incluye select para consistencia */
     padding: 10px 15px; 
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -254,10 +251,13 @@ main.inventory-container {
     background-color: #fff; 
     color: #333;
     outline: none;
+    margin-bottom: 15px; /* Espaciado extra */
 }
 
 .modal-body input[type="text"]:focus,
-.modal-body input[type="number"]:focus {
+.modal-body input[type="number"]:focus,
+.modal-body textarea:focus,
+.modal-body select:focus {
     border-color: #000; 
     box-shadow: 0 0 0 1px #000; 
 }
@@ -285,6 +285,8 @@ main.inventory-container {
     transform: scale(0.98);
 }
 
+
+/* Media Queries */
 
 @media (max-width: 768px) {
     main.inventory-container {

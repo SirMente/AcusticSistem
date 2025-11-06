@@ -49,7 +49,7 @@
                 </a>
             </li>
              <li class="menu-item menu-item-static">
-                <a href="<%= request.getContextPath() %>/Inventario" class="menu-link">
+                <a href="<%= request.getContextPath() %>/InventarioController" class="menu-link">
                    <i class='bx bx-folder-minus'></i>
                    <span>Inventario</span>
                 </a>

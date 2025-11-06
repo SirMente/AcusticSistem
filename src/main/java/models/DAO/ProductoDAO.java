@@ -1,10 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package models.DAO;
 
- // Asegúrate de que este sea el path correcto a tu modelo Producto
+// Asegúrate de que este sea el path correcto a tu modelo Producto
 import models.Producto;
 import utils.ConexionBD; // Asegúrate de que este sea el path correcto a tu clase de conexión
 import java.sql.Connection;
@@ -16,11 +12,35 @@ import java.util.List;
 
 public class ProductoDAO {
 
-    // 🔑 Consultas SQL CRUD (Asumiendo que la tabla se llama 'Producto' o 'productos' con el campo 'id_producto')
-    private static final String SQL_SELECT = "SELECT id_producto, nombre, descripcion, cantidad, precio_unitario, proveedor, imagen_url FROM Producto ORDER BY nombre ASC";
-    private static final String SQL_INSERT = "INSERT INTO Producto (nombre, descripcion, cantidad, precio_unitario, proveedor, imagen_url) VALUES (?, ?, ?, ?, ?, ?)";
-    private static final String SQL_SELECT_BY_ID = "SELECT id_producto, nombre, descripcion, cantidad, precio_unitario, proveedor, imagen_url FROM Producto WHERE id_producto = ?";
-    private static final String SQL_UPDATE = "UPDATE Producto SET nombre = ?, descripcion = ?, cantidad = ?, precio_unitario = ?, proveedor = ?, imagen_url = ? WHERE id_producto = ?";
+    // Instancia del ProveedorDAO para buscar el ID
+    private ProveedorDAO proveedorDAO = new ProveedorDAO(); 
+
+    // 🔑 CONSULTA SELECT CORREGIDA: Usa JOIN para obtener el NOMBRE del proveedor
+    private static final String SQL_SELECT = 
+            "SELECT P.id_producto, P.nombre, P.descripcion, P.cantidad, P.precio_unitario, P.imagen_url, " +
+            "PR.nombre AS nombre_proveedor, PR.id_proveedor " + 
+            "FROM Producto P " +
+            "JOIN Proveedores PR ON P.id_proveedor = PR.id_proveedor " + // Nota: Asumo que la tabla se llama 'Proveedores'
+            "ORDER BY P.nombre ASC";
+    
+    // 🔑 Consulta INSERT CORREGIDA: Usa id_proveedor
+    private static final String SQL_INSERT = 
+            "INSERT INTO Producto (nombre, descripcion, cantidad, precio_unitario, id_proveedor, imagen_url) " +
+            "VALUES (?, ?, ?, ?, ?, ?)";
+    
+    // 🔑 Consulta SELECT BY ID CORREGIDA: Asegura que el nombre del proveedor se cargue
+    private static final String SQL_SELECT_BY_ID = 
+            "SELECT P.id_producto, P.nombre, P.descripcion, P.cantidad, P.precio_unitario, P.imagen_url, " +
+            "PR.nombre AS nombre_proveedor, PR.id_proveedor " +
+            "FROM Producto P " +
+            "JOIN Proveedores PR ON P.id_proveedor = PR.id_proveedor " +
+            "WHERE P.id_producto = ?";
+    
+    // 🔑 Consulta UPDATE CORREGIDA: Usa id_proveedor
+    private static final String SQL_UPDATE = 
+            "UPDATE Producto SET nombre = ?, descripcion = ?, cantidad = ?, precio_unitario = ?, id_proveedor = ?, imagen_url = ? " +
+            "WHERE id_producto = ?";
+    
     private static final String SQL_DELETE = "DELETE FROM Producto WHERE id_producto = ?";
     
     // --- Método de Mapeo (Helper) ---
@@ -31,8 +51,14 @@ public class ProductoDAO {
         producto.setDescripcion(rs.getString("descripcion"));
         producto.setCantidad(rs.getInt("cantidad"));
         producto.setPrecioUnitario(rs.getDouble("precio_unitario"));
-        producto.setProveedor(rs.getString("proveedor"));
-        producto.setImagenUrl(rs.getString("imagen_url")); // 👈 NUEVO CAMPO
+        
+        // El alias 'nombre_proveedor' viene del JOIN en SQL_SELECT
+        producto.setProveedor(rs.getString("nombre_proveedor")); 
+        
+        // Mapeamos el ID del proveedor (necesario si quieres actualizar el proveedor)
+        producto.setIdProveedor(rs.getInt("id_proveedor"));
+        
+        producto.setImagenUrl(rs.getString("imagen_url")); 
         return producto;
     }
 
@@ -79,12 +105,20 @@ public class ProductoDAO {
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_INSERT)) {
             
+            // 🔑 CONVERSIÓN: Obtener el ID del proveedor usando su nombre
+            int idProveedor = proveedorDAO.obtenerIdPorNombre(producto.getProveedor());
+
+            if (idProveedor == 0) {
+                System.err.println("Error de FK: No se encontró el ID del proveedor con nombre: " + producto.getProveedor());
+                return false; 
+            }
+
             ps.setString(1, producto.getNombre());
             ps.setString(2, producto.getDescripcion());
             ps.setInt(3, producto.getCantidad());
             ps.setDouble(4, producto.getPrecioUnitario());
-            ps.setString(5, producto.getProveedor());
-            ps.setString(6, producto.getImagenUrl()); // 👈 INSERCIÓN DEL CAMPO DE IMAGEN
+            ps.setInt(5, idProveedor); // Usamos el ID del proveedor
+            ps.setString(6, producto.getImagenUrl()); 
             
             int filasAfectadas = ps.executeUpdate();
             return filasAfectadas > 0;
@@ -101,12 +135,20 @@ public class ProductoDAO {
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_UPDATE)) {
             
+            // 🔑 CONVERSIÓN: Obtener el ID del proveedor usando su nombre
+            int idProveedor = proveedorDAO.obtenerIdPorNombre(producto.getProveedor());
+            
+            if (idProveedor == 0) {
+                System.err.println("Error de FK: No se encontró el ID del proveedor con nombre: " + producto.getProveedor());
+                return false;
+            }
+
             ps.setString(1, producto.getNombre());
             ps.setString(2, producto.getDescripcion());
             ps.setInt(3, producto.getCantidad());
             ps.setDouble(4, producto.getPrecioUnitario());
-            ps.setString(5, producto.getProveedor());
-            ps.setString(6, producto.getImagenUrl()); // 👈 ACTUALIZACIÓN DEL CAMPO DE IMAGEN
+            ps.setInt(5, idProveedor); // Usamos el ID del proveedor
+            ps.setString(6, producto.getImagenUrl());
             ps.setInt(7, producto.getId());
             
             int filasAfectadas = ps.executeUpdate();

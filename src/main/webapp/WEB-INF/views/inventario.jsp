@@ -1,15 +1,35 @@
 <%@page import="models.Producto"%>
+<%@page import="models.Proveedor"%>
 <%@page import="java.util.List"%>
+<%@page import="java.net.URLEncoder"%>
+<%@page import="java.nio.charset.StandardCharsets"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%!
+// Bloque de DECLARACIÓN: Se usa para declarar métodos para usar en el JSP.
+    String encode(String s) {
+        if (s == null) return "";
+        try {
+            // Se usa para sanitizar valores dentro de HTML attributes/JS data-*
+            return URLEncoder.encode(s, StandardCharsets.UTF_8.toString())
+                             .replace("+", "%20");
+        } catch (Exception e) {
+            return s; 
+        }
+    }
+%>
+
 <%
-    // 🔑 CORRECCIÓN: Declaración y obtención de variables unificada.
-    // Esto asegura que 'contextPath' y 'productos' estén disponibles para su uso posterior.
     String contextPath = request.getContextPath();
     List<Producto> productos = (List<Producto>) request.getAttribute("productos");
-    
-    // Inicializar la lista si es nula para evitar NullPointerException en el bucle for-each.
+    List<Proveedor> proveedores = (List<Proveedor>) request.getAttribute("proveedores");
+
+    // Inicializar las listas si son nulas
     if (productos == null) {
         productos = java.util.Collections.emptyList();
+    }
+    if (proveedores == null) {
+        proveedores = java.util.Collections.emptyList();
     }
 %>
 <!DOCTYPE html>
@@ -18,7 +38,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <%-- 🔑 Rutas CSS --%>
+        <%-- Rutas CSS --%>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link rel="stylesheet" href="<%= contextPath%>/assets/css/Encabezado.css">
         <link rel="stylesheet" href="<%= contextPath%>/assets/css/Inventario.css">
@@ -74,43 +94,46 @@
                 </thead>
                 <tbody>
                     <%
-                        // 🔑 USO CORRECTO: La variable 'productos' ya fue declarada y verificada
-                        // en el scriptlet superior.
                         if (!productos.isEmpty()) {
                             for (Producto producto : productos) {
                     %>
-                    <tr>
-                        <td><%= producto.getNombre()%></td>
+                    <tr <% if (producto.getCantidad() < 5) { %>class="low-stock"<% } %>>
+                        <td>
+                            <%= producto.getNombre()%>
+                            <% if (producto.getCantidad() < 5) { %>
+                                <span class="stock-badge">Stock Bajo</span>
+                            <% } %>
+                        </td>
                         <td><%= producto.getDescripcion()%></td>
                         <td><%= producto.getCantidad()%></td>
-                        <td>$<%= String.format("%.2f", producto.getPrecioUnitario())%></td>
+                        <td>$<%= String.format("%,.2f", producto.getPrecioUnitario())%></td>
                         <td><%= producto.getProveedor()%></td>
                         <td class="action-buttons">
-                            <%-- Botón para EDITAR --%>
+                            <%-- Botón para EDITAR: Usamos encode() para manejar caracteres especiales en data-* --%>
                             <a href="#" class="edit-btn" title="Editar"
-                                data-id="<%= producto.getId()%>"
-                                data-nombre="<%= producto.getNombre()%>"
-                                data-descripcion="<%= producto.getDescripcion()%>"
-                                data-cantidad="<%= producto.getCantidad()%>"
-                                data-precio="<%= producto.getPrecioUnitario()%>"
-                                data-proveedor="<%= producto.getProveedor()%>">
-                                <i class='bx bx-pencil action-icon'></i>
+                               data-id="<%= producto.getId()%>"
+                               data-nombre="<%= encode(producto.getNombre())%>"
+                               data-descripcion="<%= encode(producto.getDescripcion())%>"
+                               data-cantidad="<%= producto.getCantidad()%>"
+                               data-precio="<%= producto.getPrecioUnitario()%>"
+                               data-proveedor="<%= encode(producto.getProveedor())%>">
+                                 <i class='bx bx-pencil action-icon'></i>
                             </a>
-                            
+
                             <%-- Formulario para ELIMINAR --%>
                             <form action="<%= contextPath%>/InventarioController" method="POST" style="display: inline;">
                                 <input type="hidden" name="action" value="eliminar">
                                 <input type="hidden" name="id" value="<%= producto.getId()%>">
                                 <button type="submit" class="action-btn delete-btn" title="Eliminar Producto" 
-                                    onclick="return confirm('¿Estás seguro de que quieres eliminar <%= producto.getNombre()%>?');">
+                                        onclick="return confirm('¿Estás seguro de que quieres eliminar <%= producto.getNombre()%>?');">
                                     <i class='bx bx-trash'></i>
                                 </button>
                             </form>
                         </td>
                     </tr>
                     <%
-                            }
-                        } else {
+                        }
+                    } else {
                     %>
                     <tr>
                         <td colspan="6" style="text-align: center; padding: 20px;">
@@ -130,10 +153,13 @@
                         <h3 id="modal-title">Agregar Nuevo Artículo</h3>
                         <button class="close-btn" id="close-modal-btn" aria-label="Cerrar modal"><i class='bx bx-x'></i></button>
                     </div>
-                    
+
                     <form class="modal-body" id="add-item-form" action="<%= contextPath%>/InventarioController" method="POST">
                         <input type="hidden" id="producto-id" name="id" value="0">
                         <input type="hidden" name="action" id="action-type" value="agregar">
+                        
+                        <%-- Campo imagen_url: Asumimos que se maneja de forma oculta o con valor por defecto --%>
+                        <input type="hidden" id="imagen-url" name="imagenUrl" value=""> 
 
                         <label for="articulo-nombre">Nombre del Artículo:</label>
                         <input type="text" id="articulo-nombre" name="nombre" required>
@@ -148,7 +174,18 @@
                         <input type="number" id="articulo-precio" name="precio" step="0.01" min="0" required> 
 
                         <label for="articulo-proveedor">Proveedor:</label>
-                        <input type="text" id="articulo-proveedor" name="proveedor">
+                        <select id="articulo-proveedor" name="proveedor" required>
+                            <option value="">-- Seleccione un proveedor --</option>
+                            <%
+                                for (Proveedor prov : proveedores) {
+                            %>
+                            <option value="<%= prov.getNombre()%>">
+                                <%= prov.getNombre()%>
+                            </option>
+                            <%
+                                }
+                            %>
+                        </select>
 
                         <button type="submit" class="submit-btn" id="submit-btn">Guardar Artículo</button>
                     </form>
@@ -156,11 +193,6 @@
             </div>
         </main>
 
-        <%-- 🔑 Lógica JavaScript para el Modal (Integrada para edición) --%>
-        <script>
-            // ... (El bloque JavaScript se mantiene igual para el manejo del modal) ...
-        </script>
-        
-        <script src="<%= contextPath%>/assets/JavaScript/Inventario.js"></script>
+        <script src="<%= contextPath%>/JavaScript/Inventario.js"></script>
     </body>
 </html>

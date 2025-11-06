@@ -11,14 +11,17 @@ import utils.ConexionBD;
 
 public class ProveedorDAO {
 
-    // 🔑 Consulta SQL Actualizada
     private final String SQL_SELECT = "SELECT id_proveedor, nombre, email, telefono, tipo_producto FROM Proveedores ORDER BY nombre ASC";
     private final String SQL_INSERT = "INSERT INTO Proveedores (nombre, email, telefono, tipo_producto) VALUES (?, ?, ?, ?)";
     private final String SQL_SELECT_BY_ID = "SELECT id_proveedor, nombre, email, telefono, tipo_producto FROM Proveedores WHERE id_proveedor = ?";
     private final String SQL_UPDATE = "UPDATE Proveedores SET nombre = ?, email = ?, telefono = ?, tipo_producto = ? WHERE id_proveedor = ?";
     private final String SQL_DELETE = "DELETE FROM Proveedores WHERE id_proveedor = ?";
+    
+    // 🔑 Nueva Consulta: Buscar ID por Nombre
+    private static final String SQL_SELECT_ID_BY_NOMBRE = "SELECT id_proveedor FROM Proveedores WHERE nombre = ?";
 
-    // --- Método LISTAR ---
+
+    // --- Método LISTAR (Sin cambios) ---
     public List<Proveedor> listarProveedores() throws SQLException {
         List<Proveedor> listaProveedores = new ArrayList<>();
 
@@ -29,7 +32,6 @@ public class ProveedorDAO {
 
                 proveedor.setIdProveedor(rs.getInt("id_proveedor"));
                 proveedor.setNombre(rs.getString("nombre"));
-                // 🔑 Mapeo de Contactos
                 proveedor.setEmail(rs.getString("email"));
                 proveedor.setTelefono(rs.getString("telefono"));
                 proveedor.setTipoProducto(rs.getString("tipo_producto"));
@@ -43,6 +45,7 @@ public class ProveedorDAO {
         return listaProveedores;
     }
 
+    // --- Método OBTENER POR ID (Sin cambios) ---
     public Proveedor obtenerProveedorPorId(int id) throws SQLException {
         Proveedor proveedor = null;
         try (Connection conn = ConexionBD.getConnection(); PreparedStatement ps = conn.prepareStatement(SQL_SELECT_BY_ID)) {
@@ -65,12 +68,11 @@ public class ProveedorDAO {
         return proveedor;
     }
 
-    // --- Método INSERTAR ---
+    // --- Método INSERTAR (Sin cambios) ---
     public boolean agregarProveedor(Proveedor proveedor) throws SQLException {
         try (Connection conn = ConexionBD.getConnection(); PreparedStatement ps = conn.prepareStatement(SQL_INSERT)) {
 
             ps.setString(1, proveedor.getNombre());
-            // 🔑 Inserción de Contactos
             ps.setString(2, proveedor.getEmail());
             ps.setString(3, proveedor.getTelefono());
             ps.setString(4, proveedor.getTipoProducto());
@@ -84,7 +86,7 @@ public class ProveedorDAO {
         }
     }
 
-    // --- Nuevo Método: ACTUALIZAR ---
+    // --- Método ACTUALIZAR (Sin cambios) ---
     public boolean actualizarProveedor(Proveedor proveedor) throws SQLException {
         try (Connection conn = ConexionBD.getConnection(); PreparedStatement ps = conn.prepareStatement(SQL_UPDATE)) {
 
@@ -92,7 +94,7 @@ public class ProveedorDAO {
             ps.setString(2, proveedor.getEmail());
             ps.setString(3, proveedor.getTelefono());
             ps.setString(4, proveedor.getTipoProducto());
-            ps.setInt(5, proveedor.getIdProveedor()); // Clave de actualización
+            ps.setInt(5, proveedor.getIdProveedor()); 
 
             int filasAfectadas = ps.executeUpdate();
             return filasAfectadas > 0;
@@ -103,7 +105,7 @@ public class ProveedorDAO {
         }
     }
 
-    // --- Nuevo Método: ELIMINAR ---
+    // --- Método ELIMINAR (Sin cambios) ---
     public boolean eliminarProveedor(int id) throws SQLException {
         try (Connection conn = ConexionBD.getConnection(); PreparedStatement ps = conn.prepareStatement(SQL_DELETE)) {
 
@@ -116,5 +118,25 @@ public class ProveedorDAO {
             System.err.println("Error al eliminar proveedor: " + e.getMessage());
             throw e;
         }
+    }
+    
+    // 🔑 NUEVO MÉTODO CRÍTICO: Obtener ID a partir del Nombre
+    public int obtenerIdPorNombre(String nombreProveedor) throws SQLException {
+        int idProveedor = 0;
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL_SELECT_ID_BY_NOMBRE)) {
+            
+            ps.setString(1, nombreProveedor);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    idProveedor = rs.getInt("id_proveedor");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener ID del proveedor por nombre: " + e.getMessage());
+            throw e;
+        }
+        return idProveedor;
     }
 }

@@ -27,7 +27,7 @@
                     <li><a href="<%= request.getContextPath()%>/Dashboard">Inicio</a></li>
                     <li class="active"><a href="<%= request.getContextPath()%>/Proveedores" class="active">Proveedores</a></li>
                     <li><a href="<%= request.getContextPath()%>/GestionClientes">Clientes</a></li>
-                    <li><a href="<%= request.getContextPath()%>/Inventario">Inventario</a></li>
+                    <li><a href="<%= request.getContextPath()%>/InventarioController">Inventario</a></li>
                     <li><a href="<%= request.getContextPath()%>/Finanzas">Finanzas</a></li>
                     <li><a href="<%= request.getContextPath()%>/GestionProformas">Proformas</a></li>
                     <li><a href="<%= request.getContextPath()%>/Proyectos">Proyectos</a></li>
@@ -239,6 +239,6 @@
         </script>
 
         <%-- 🔑 CONVERSIÓN JSP: Ruta del Script original (Si tiene funciones adicionales) --%>
-        <script src="<%= request.getContextPath()%>/assets/JavaScript/Proveedores.js"></script>
+        <script src="<%= request.getContextPath()%>/JavaScript/Proveedores.js"></script>
     </body>
 </html>
