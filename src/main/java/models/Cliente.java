@@ -2,39 +2,31 @@ package models;
 
 public class Cliente {
 
-    private int id;
+    private long docu; // CAMBIADO: Antes 'dni', ahora 'docu'
     private String nombre;
-    private String empresa;
     private String telefono;
     private String email;
-
-    // Constructor completo (necesario para el SELECT)
-    public Cliente(int id, String nombre, String empresa, String telefono, String email) {
-        this.id = id;
-        this.nombre = nombre;
-        this.empresa = empresa;
-        this.telefono = telefono;
-        this.email = email;
-    }
-
-    // Constructor para INSERT (donde ID es 0 o se ignora)
-    public Cliente(String nombre, String empresa, String telefono, String email) {
-        this.nombre = nombre;
-        this.empresa = empresa;
-        this.telefono = telefono;
-        this.email = email;
-    }
+    private String direccion;
 
     public Cliente() {
-         }
-
-    // --- GETTERS Y SETTERS ---
-    public int getId() {
-        return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public Cliente(long docu, String nombre, String direccion, String telefono, String email) {
+        this.docu = docu; // CAMBIADO
+        this.nombre = nombre;
+        this.direccion = direccion;
+        this.telefono = telefono;
+        this.email = email;
+    }
+
+    // GETTERS Y SETTERS
+
+    public long getDocu() { // CAMBIADO: Antes getDni()
+        return docu;
+    }
+
+    public void setDocu(long docu) { // CAMBIADO: Antes setDni()
+        this.docu = docu;
     }
 
     public String getNombre() {
@@ -45,12 +37,12 @@ public class Cliente {
         this.nombre = nombre;
     }
 
-    public String getEmpresa() {
-        return empresa;
+    public String getDireccion() {
+        return direccion;
     }
 
-    public void setEmpresa(String empresa) {
-        this.empresa = empresa;
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 
     public String getTelefono() {

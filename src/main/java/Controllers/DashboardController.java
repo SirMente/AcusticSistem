@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -22,6 +22,6 @@ public class DashboardController extends HttpServlet {
         }
 
         // Carga y muestra la vista del Dashboard (usa forward)
-        request.getRequestDispatcher("WEB-INF/views/dashboard.jsp").forward(request, response);
+        request.getRequestDispatcher("views/dashboard.jsp").forward(request, response);
     }
 }

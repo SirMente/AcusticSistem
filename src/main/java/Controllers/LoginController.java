@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import models.Usuario;
 import models.DAO.UsuarioDAO;
@@ -21,7 +21,7 @@ public class LoginController extends HttpServlet {
             throws ServletException, IOException {
         
         // Muestra la vista de login, ubicada dentro de WEB-INF (protegida)
-        request.getRequestDispatcher("WEB-INF/views/login.jsp").forward(request, response);
+        request.getRequestDispatcher("views/login.jsp").forward(request, response);
     }
 
     /**
@@ -60,7 +60,7 @@ public class LoginController extends HttpServlet {
             
             // 7. Volver a mostrar la vista de login
             // Usamos forward para mantener el mensaje de error en el objeto request.
-            request.getRequestDispatcher("WEB-INF/views/login.jsp").forward(request, response);
+            request.getRequestDispatcher("views/login.jsp").forward(request, response);
         }
     }
 }

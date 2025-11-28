@@ -1,96 +1,105 @@
-// Inventario.js (CORREGIDO)
+// JavaScript/Inventario.js
 
 document.addEventListener('DOMContentLoaded', function () {
-    // --- 1. VARIABLES DEL MODAL Y ELEMENTOS DEL FORMULARIO ---
+    // ----------------------------------------------------
+    // 1. Obtener elementos del DOM (IDs del JSP de Inventario)
+    // ----------------------------------------------------
+    const modal = document.getElementById('add-item-modal');
+    const form = document.getElementById('add-item-form');
+    const tituloModal = document.getElementById('modal-title');
+    const btnSubmit = document.getElementById('submit-btn');
 
-    const openModalBtn = document.getElementById('open-modal-btn'); 
-    const modal = document.getElementById('add-item-modal');      
-    const closeModalBtn = document.getElementById('close-modal-btn'); 
-    const form = document.getElementById('add-item-form');        
-    
-    // Elementos internos del formulario
-    const modalTitle = document.getElementById('modal-title');
-    const actionType = document.getElementById('action-type');
-    const submitBtn = document.getElementById('submit-btn');
-    const productoId = document.getElementById('producto-id');
+    const btnOpenModal = document.getElementById('open-modal-btn');
+    const btnCloseModal = document.getElementById('close-modal-btn');
 
-    // Referencias a los campos de entrada
+    // CAMPOS DE DATOS DEL PRODUCTO
+    const inputId = document.getElementById('producto-id');
     const inputNombre = document.getElementById('articulo-nombre');
     const inputDescripcion = document.getElementById('articulo-descripcion');
+    const inputMarca = document.getElementById('articulo-marca');
+    const inputModelo = document.getElementById('articulo-modelo');
     const inputCantidad = document.getElementById('articulo-cantidad');
-    const inputPrecio = document.getElementById('articulo-precio'); 
-    const inputProveedor = document.getElementById('articulo-proveedor'); 
+    const inputStockMinimo = document.getElementById('articulo-stock-minimo');
+    const inputPrecio = document.getElementById('articulo-precio');
+    const inputRucProveedor = document.getElementById('ruc-proveedor');
+    const inputImagenUrl = document.getElementById('imagen-url');
 
-    // Nodos de los botones de edición
-    const editButtons = document.querySelectorAll('.edit-btn');
+    // Campo de acción
+    const inputAccion = document.getElementById('action-type');
 
-
-    // --- 2. FUNCIONES DE MANEJO DEL MODAL (ABRIR / CERRAR) ---
-
-    // Función para ABRIR el modal: AÑADE la clase 'active'
-    function openAddModal() {
-        form.reset();
-        productoId.value = '0';
-        actionType.value = 'agregar';
-        modalTitle.textContent = 'Agregar Nuevo Artículo';
-        submitBtn.textContent = 'Guardar Artículo';
-        
-        // 🔑 CORRECCIÓN: Usar classList.add('active')
-        modal.classList.add('active');
+    // Función para ABRIR el modal (usa la clase 'active' del CSS)
+    function openModal() {
+        modal.classList.add('active'); // <-- CLAVE: Añadir la clase 'active'
     }
 
-    // Función para cerrar el modal: REMUEVE la clase 'active'
+    // Función para CERRAR el modal (remueve la clase 'active' del CSS)
     function closeModal() {
-        // 🔑 CORRECCIÓN: Usar classList.remove('active')
-        modal.classList.remove('active');
+        modal.classList.remove('active'); // <-- CLAVE: Remover la clase 'active'
     }
 
+    // ----------------------------------------------------
+    // 2. Lógica para botón AGREGAR (Nuevo Producto)
+    // ----------------------------------------------------
+    btnOpenModal.addEventListener('click', function () {
+        // Resetear el formulario para AGREGAR
+        inputId.value = '0';
+        inputAccion.value = 'agregar';
+        tituloModal.textContent = 'Agregar Nuevo Artículo';
+        btnSubmit.textContent = 'Guardar Artículo';
+        form.reset();
 
-    // --- 3. LISTENERS GLOBALES ---
+        openModal(); // <-- Usar la nueva función
+    });
 
-    // Evento para ABRIR el modal (en su botón "Agregar Artículo")
-    if (openModalBtn) {
-        openModalBtn.addEventListener("click", openAddModal);
-    }
-
-    // Evento para CERRAR el modal desde el botón X
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', closeModal);
-    }
-
-    // Evento para CERRAR el modal al hacer click fuera de él
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
-    }
-
-    // --- 4. LÓGICA DE EDICIÓN (Cargar datos y abrir modal) ---
-
-    editButtons.forEach(button => {
+    // ----------------------------------------------------
+    // 3. Lógica para botones EDITAR (Pre-llenar el formulario)
+    // ----------------------------------------------------
+    document.querySelectorAll('.edit-btn').forEach(button => {
         button.addEventListener('click', function (e) {
             e.preventDefault();
 
-            // 1. Configurar el modo a 'editar'
-            actionType.value = 'editar';
-            modalTitle.textContent = 'Editar Artículo Existente';
-            submitBtn.textContent = 'Guardar Cambios';
-
-            // 2. Llenar los campos con los datos
-            productoId.value = this.getAttribute('data-id');
-            inputNombre.value = this.getAttribute('data-nombre');
-            inputDescripcion.value = this.getAttribute('data-descripcion');
+            // 🔑 Llenar el formulario con los datos del data-attribute (usando los nuevos campos)
+            // Se usa 'decodeURIComponent' para manejar los valores codificados del JSP
+            inputId.value = this.getAttribute('data-id');
+            inputNombre.value = decodeURIComponent(this.getAttribute('data-nombre'));
+            inputDescripcion.value = decodeURIComponent(this.getAttribute('data-descripcion'));
+            inputMarca.value = decodeURIComponent(this.getAttribute('data-marca'));
+            inputModelo.value = decodeURIComponent(this.getAttribute('data-modelo'));
             inputCantidad.value = this.getAttribute('data-cantidad');
+            inputStockMinimo.value = this.getAttribute('data-stock-minimo');
             inputPrecio.value = this.getAttribute('data-precio');
-            
-            const proveedorActual = this.getAttribute('data-proveedor');
-            inputProveedor.value = proveedorActual;
+            inputImagenUrl.value = decodeURIComponent(this.getAttribute('data-imagen-url'));
 
-            // 3. Abrir el modal
-            // 🔑 CORRECCIÓN: Usar classList.add('active')
-            modal.classList.add('active');
+            // Seleccionar el RUC en el <select>
+            const rucProveedorValue = this.getAttribute('data-ruc-proveedor');
+            if (inputRucProveedor) {
+                inputRucProveedor.value = rucProveedorValue;
+            }
+
+            // Cambiar la UI para EDITAR y la acción del Controller
+            inputAccion.value = 'actualizar';
+            tituloModal.textContent = 'Editar Artículo';
+            btnSubmit.textContent = 'Guardar Cambios';
+
+            openModal(); // <-- Usar la nueva función
         });
     });
-}); // Fin de DOMContentLoaded
+
+    // ----------------------------------------------------
+    // 4. Lógica para cerrar el modal
+    // ----------------------------------------------------
+    btnCloseModal.addEventListener('click', function () {
+        closeModal(); // <-- Usar la nueva función
+    });
+
+    // Cerrar si se clickea fuera del modal
+    window.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            closeModal(); // <-- Usar la nueva función
+        }
+    });
+
+    // ----------------------------------------------------
+    // (Opcional) Implementación de búsqueda en la tabla (si la necesitas)
+    // ----------------------------------------------------
+});

@@ -1,49 +1,62 @@
 package models;
 
+import java.math.BigDecimal;
+
 public class Producto {
 
-    private int id;
+    private int id_producto;
     private String nombre;
     private String descripcion;
+    private String marca;
+    private String modelo;
     private int cantidad;
-    private double precioUnitario;
+    private int stock_minimo;
+    private BigDecimal precio_unitario; // Usar BigDecimal para precisión de dinero
+    private String imagen_url;
+    private Long ruc_proveedor; // Usar Long (clase envoltorio) para aceptar NULL, o long si usas 0 como default.
 
-    // 🔑 Campo para mostrar el NOMBRE del proveedor en el JSP
-    private String proveedor;
-
-    // 🔑 Campo para manejar la CLAVE FORÁNEA (id_proveedor en la DB)
-    private int idProveedor;
-
-    private String imagenUrl;
-
-    // CONSTRUCTOR VACÍO 
-    public Producto() {
-    }
-
-    // Constructor completo
-    public Producto(int id, String nombre, String descripcion, int cantidad, double precioUnitario, String proveedor, int idProveedor, String imagenUrl) {
-        this.id = id;
+    // --------------------------------------------------
+    // CONSTRUCTOR COMPLETO (Usado para Edición o Listado)
+    // --------------------------------------------------
+    public Producto(int id_producto, String nombre, String descripcion, String marca, String modelo, int cantidad,
+            int stock_minimo, BigDecimal precio_unitario, String imagen_url, Long ruc_proveedor) {
+        this.id_producto = id_producto;
         this.nombre = nombre;
         this.descripcion = descripcion;
+        this.marca = marca;
+        this.modelo = modelo;
         this.cantidad = cantidad;
-        this.precioUnitario = precioUnitario;
-        this.proveedor = proveedor;
-        this.idProveedor = idProveedor;
-        this.imagenUrl = imagenUrl;
+        this.stock_minimo = stock_minimo;
+        this.precio_unitario = precio_unitario;
+        this.imagen_url = imagen_url;
+        this.ruc_proveedor = ruc_proveedor;
     }
 
-    // Constructor para productos nuevos (sin ID y sin ID Proveedor)
-    public Producto(String nombre, String descripcion, int cantidad, double precioUnitario, String proveedor, String imagenUrl) {
-        this(0, nombre, descripcion, cantidad, precioUnitario, proveedor, 0, imagenUrl);
+    // --------------------------------------------------
+    // CONSTRUCTOR PARA INSERCIÓN (id_producto es AUTO_INCREMENT)
+    // --------------------------------------------------
+    public Producto(String nombre, String descripcion, String marca, String modelo, int cantidad,
+            int stock_minimo, BigDecimal precio_unitario, String imagen_url, Long ruc_proveedor) {
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.marca = marca;
+        this.modelo = modelo;
+        this.cantidad = cantidad;
+        this.stock_minimo = stock_minimo;
+        this.precio_unitario = precio_unitario;
+        this.imagen_url = imagen_url;
+        this.ruc_proveedor = ruc_proveedor;
     }
 
-    // --- Getters y Setters ---
-    public int getId() {
-        return id;
+    // --------------------------------------------------
+    // GETTERS Y SETTERS
+    // --------------------------------------------------
+    public int getId_producto() {
+        return id_producto;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setId_producto(int id_producto) {
+        this.id_producto = id_producto;
     }
 
     public String getNombre() {
@@ -62,6 +75,22 @@ public class Producto {
         this.descripcion = descripcion;
     }
 
+    public String getMarca() {
+        return marca;
+    }
+
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+
+    public String getModelo() {
+        return modelo;
+    }
+
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
+    }
+
     public int getCantidad() {
         return cantidad;
     }
@@ -70,36 +99,35 @@ public class Producto {
         this.cantidad = cantidad;
     }
 
-    public double getPrecioUnitario() {
-        return precioUnitario;
+    public int getStock_minimo() {
+        return stock_minimo;
     }
 
-    public void setPrecioUnitario(double precioUnitario) {
-        this.precioUnitario = precioUnitario;
+    public void setStock_minimo(int stock_minimo) {
+        this.stock_minimo = stock_minimo;
     }
 
-    public String getProveedor() {
-        return proveedor;
+    public BigDecimal getPrecio_unitario() {
+        return precio_unitario;
     }
 
-    public void setProveedor(String proveedor) {
-        this.proveedor = proveedor;
+    public void setPrecio_unitario(BigDecimal precio_unitario) {
+        this.precio_unitario = precio_unitario;
     }
 
-    // 🔑 Nuevos Getter/Setter para el ID del Proveedor
-    public int getIdProveedor() {
-        return idProveedor;
+    public String getImagen_url() {
+        return imagen_url;
     }
 
-    public void setIdProveedor(int idProveedor) {
-        this.idProveedor = idProveedor;
+    public void setImagen_url(String imagen_url) {
+        this.imagen_url = imagen_url;
     }
 
-    public String getImagenUrl() {
-        return imagenUrl;
+    public Long getRuc_proveedor() {
+        return ruc_proveedor;
     }
 
-    public void setImagenUrl(String imagenUrl) {
-        this.imagenUrl = imagenUrl;
+    public void setRuc_proveedor(Long ruc_proveedor) {
+        this.ruc_proveedor = ruc_proveedor;
     }
 }

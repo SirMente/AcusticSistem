@@ -1,82 +1,70 @@
 package models;
 
-// Importaciones necesarias para manejar fechas y decimales
-import java.sql.Date; 
-import java.sql.Timestamp;
-import java.math.BigDecimal; // Recomendado para manejar dinero (presupuesto)
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.util.List;
 
 public class Proforma {
-    private int idProforma;
-    private int idCliente; // Para la clave foránea del cliente
+
+    // Campos basados en la tabla Proforma
+    private String idProforma;
+    private Long idCliente; // Usado como FK
+    private String dniCliente; // Campo extra para la vista/lógica de negocio
+    private Date fechaProforma;
+    private String estado; // ENUM: PENDIENTE, PAGADA_PARCIAL, PAGADA_TOTAL, CANCELADA
+    private BigDecimal subtotal;
+    private BigDecimal impuestos;
+    private BigDecimal total;
+
+    // Campos de la vista (para creación rápida)
     private String descripcionServicio;
-    private BigDecimal presupuesto; // Usamos BigDecimal para manejar valores monetarios
-    private Date fechaEmision;
-    private String estado;
-    private Timestamp fechaCreacion;
+
+    private List<DetalleProforma> detalles; // NUEVO
 
     // Constructor vacío
     public Proforma() {
     }
 
-    // Constructor con campos obligatorios para AGREGAR (sin ID y sin fecha_creacion)
-    public Proforma(int idCliente, String descripcionServicio, BigDecimal presupuesto, Date fechaEmision) {
-        this.idCliente = idCliente;
-        this.descripcionServicio = descripcionServicio;
-        this.presupuesto = presupuesto;
-        this.fechaEmision = fechaEmision;
-    }
-    
-    // Constructor completo (usado generalmente al obtener datos de la BD)
-    public Proforma(int idProforma, int idCliente, String descripcionServicio, BigDecimal presupuesto, Date fechaEmision, String estado, Timestamp fechaCreacion) {
+    // Constructor para mostrar la lista (se requieren datos del cliente)
+    public Proforma(String idProforma, String dniCliente, Date fechaProforma, BigDecimal total, String estado) {
         this.idProforma = idProforma;
-        this.idCliente = idCliente;
-        this.descripcionServicio = descripcionServicio;
-        this.presupuesto = presupuesto;
-        this.fechaEmision = fechaEmision;
+        this.dniCliente = dniCliente;
+        this.fechaProforma = fechaProforma;
+        this.total = total;
         this.estado = estado;
-        this.fechaCreacion = fechaCreacion;
     }
 
     // --- Getters y Setters ---
-
-    public int getIdProforma() {
+    public String getIdProforma() {
         return idProforma;
     }
 
-    public void setIdProforma(int idProforma) {
+    public void setIdProforma(String idProforma) {
         this.idProforma = idProforma;
     }
 
-    public int getIdCliente() {
+    public Long getIdCliente() {
         return idCliente;
     }
 
-    public void setIdCliente(int idCliente) {
+    public void setIdCliente(Long idCliente) {
         this.idCliente = idCliente;
     }
 
-    public String getDescripcionServicio() {
-        return descripcionServicio;
+    public String getDniCliente() {
+        return dniCliente;
     }
 
-    public void setDescripcionServicio(String descripcionServicio) {
-        this.descripcionServicio = descripcionServicio;
+    public void setDniCliente(String dniCliente) {
+        this.dniCliente = dniCliente;
     }
 
-    public BigDecimal getPresupuesto() {
-        return presupuesto;
+    public Date getFechaProforma() {
+        return fechaProforma;
     }
 
-    public void setPresupuesto(BigDecimal presupuesto) {
-        this.presupuesto = presupuesto;
-    }
-
-    public Date getFechaEmision() {
-        return fechaEmision;
-    }
-
-    public void setFechaEmision(Date fechaEmision) {
-        this.fechaEmision = fechaEmision;
+    public void setFechaProforma(Date fechaProforma) {
+        this.fechaProforma = fechaProforma;
     }
 
     public String getEstado() {
@@ -87,11 +75,43 @@ public class Proforma {
         this.estado = estado;
     }
 
-    public Timestamp getFechaCreacion() {
-        return fechaCreacion;
+    public BigDecimal getSubtotal() {
+        return subtotal;
     }
 
-    public void setFechaCreacion(Timestamp fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
+    public void setSubtotal(BigDecimal subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public BigDecimal getImpuestos() {
+        return impuestos;
+    }
+
+    public void setImpuestos(BigDecimal impuestos) {
+        this.impuestos = impuestos;
+    }
+
+    public BigDecimal getTotal() {
+        return total;
+    }
+
+    public void setTotal(BigDecimal total) {
+        this.total = total;
+    }
+
+    public String getDescripcionServicio() {
+        return descripcionServicio;
+    }
+
+    public void setDescripcionServicio(String descripcionServicio) {
+        this.descripcionServicio = descripcionServicio;
+    }
+
+    public List<DetalleProforma> getDetalles() {
+        return detalles;
+    }
+
+    public void setDetalles(List<DetalleProforma> detalles) {
+        this.detalles = detalles;
     }
 }

@@ -1,6 +1,6 @@
 // Script1.js
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // ----------------------------------------------------
     // 1. Obtener elementos del DOM (IDs del JSP)
     // ----------------------------------------------------
@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('form-cliente-action');
     const tituloModal = document.getElementById('modal-title-action');
     const btnSubmit = document.getElementById('btn-submit-action');
-    
+
     // CAMPOS DE DATOS: CLAVE para la edición
     const inputId = document.getElementById('cliente-id');
     const inputNombre = document.getElementById('nombre');
@@ -19,9 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ----------------------------------------------------
     // 2. Lógica para botón AGREGAR (Nuevo Cliente)
     // ----------------------------------------------------
-    document.getElementById('btn-agregar-cliente').addEventListener('click', function() {
+    document.getElementById('btn-agregar-cliente').addEventListener('click', function () {
         // Resetear el formulario para AGREGAR: ID en 0 para INSERT
-        inputId.value = '0'; 
+        inputId.value = '0';
         tituloModal.textContent = 'Agregar cliente';
         btnSubmit.textContent = 'Agregar';
         form.reset(); // Limpia los campos
@@ -32,9 +32,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // 3. Lógica para botones EDITAR (Pre-llenar el formulario)
     // ----------------------------------------------------
     document.querySelectorAll('.edit-btn').forEach(button => {
-        button.addEventListener('click', function(e) {
+        button.addEventListener('click', function (e) {
             e.preventDefault();
-            
+
             // Llenar el formulario con los datos del data-attribute
             // CLAVE: Establecer el ID para que el Controller sepa que es UPDATE
             inputId.value = this.getAttribute('data-id');
@@ -46,15 +46,56 @@ document.addEventListener('DOMContentLoaded', function() {
             // Cambiar la UI para EDITAR
             tituloModal.textContent = 'Editar Cliente';
             btnSubmit.textContent = 'Guardar Cambios';
-            
+
             modal.style.display = 'flex';
         });
     });
-    
+
     // ----------------------------------------------------
     // 4. Lógica para cerrar el modal
     // ----------------------------------------------------
-    modal.querySelector('.close-btn').addEventListener('click', function() {
+    modal.querySelector('.close-btn').addEventListener('click', function () {
         modal.style.display = 'none';
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const selectCliente = document.getElementById('dni_cliente_select');
+    const inputNombre = document.getElementById('cliente_nombre');
+    const inputEmpresa = document.getElementById('cliente_empresa');
+    const inputTelefono = document.getElementById('cliente_telefono');
+    const inputEmail = document.getElementById('cliente_email');
+    const contextPath = '<%= request.getContextPath() %>';
+
+    selectCliente.addEventListener('change', () => {
+        const dni = selectCliente.value;
+
+        if (!dni) {
+            inputNombre.value = '';
+            inputEmpresa.value = '';
+            inputTelefono.value = '';
+            inputEmail.value = '';
+            return;
+        }
+
+        fetch(contextPath + '/ClienteData?dni=' + dni)
+                .then(response => {
+                    if (!response.ok)
+                        throw new Error('Cliente no encontrado');
+                    return response.json();
+                })
+                .then(data => {
+                    inputNombre.value = data.nombre;
+                    inputEmpresa.value = data.empresa;
+                    inputTelefono.value = data.telefono;
+                    inputEmail.value = data.email;
+                })
+                .catch(err => {
+                    alert('Error: ' + err.message);
+                    inputNombre.value = '';
+                    inputEmpresa.value = '';
+                    inputTelefono.value = '';
+                    inputEmail.value = '';
+                });
     });
 });

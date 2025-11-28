@@ -24,6 +24,18 @@
         <servlet-name>InventarioController</servlet-name>
         <servlet-class>Controllers.InventarioController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>LoginController</servlet-name>
+        <servlet-class>Controllers.LoginController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ProductoController</servlet-name>
+        <servlet-class>controllers.ProductoController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ServicioController</servlet-name>
+        <servlet-class>controllers.ServicioController</servlet-class>
+    </servlet>
     
     <session-config>
         <session-timeout>
@@ -31,6 +43,6 @@
         </session-timeout>
     </session-config>
     <welcome-file-list>
-        <welcome-file>login.jsp</welcome-file>
+        <welcome-file>login</welcome-file>
     </welcome-file-list>
 </web-app>

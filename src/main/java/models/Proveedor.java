@@ -1,31 +1,40 @@
 package models;
 
 public class Proveedor {
-    
-    private int idProveedor;
+
+    // Cambiado: La clave primaria es RUC (INT)
+    private long ruc;
     private String nombre;
-    private String email;      // 🔑 Campo de Contacto: Email
-    private String telefono;   // 🔑 Campo de Contacto: Teléfono
-    private String tipoProducto;
+    private String tipoProducto; // Mapea a tipo_producto
+    private String email;
+    private String telefono;
+    private String direccion; // Nuevo campo
 
     // Constructor vacío
-    public Proveedor() {}
+    public Proveedor() {
+    }
 
-    // Constructor con campos (actualizado)
-    public Proveedor(String nombre, String email, String telefono, String tipoProducto) {
+    // Constructor completo para SELECT (con RUC/PK)
+    public Proveedor(long ruc, String nombre, String tipoProducto, String email, String telefono, String direccion) {
+        this.ruc = ruc;
         this.nombre = nombre;
+        this.tipoProducto = tipoProducto;
         this.email = email;
         this.telefono = telefono;
-        this.tipoProducto = tipoProducto;
+        this.direccion = direccion;
     }
 
-    // Getters y Setters (Nuevos/Modificados)
-    public int getIdProveedor() {
-        return idProveedor;
+    // Constructor para INSERT (sin RUC/PK si la base de datos lo genera, pero lo necesitamos para la validación si se ingresa manualmente)
+    // Usaremos el constructor completo para mantener la coherencia.
+    // GETTERS y SETTERS
+    // CAMBIADO: getIdProveedor() a getRuc()
+    public long getRuc() {
+        return ruc;
     }
 
-    public void setIdProveedor(int idProveedor) {
-        this.idProveedor = idProveedor;
+    // CAMBIADO: setIdProveedor() a setRuc()
+    public void setRuc(long ruc) {
+        this.ruc = ruc;
     }
 
     public String getNombre() {
@@ -36,6 +45,14 @@ public class Proveedor {
         this.nombre = nombre;
     }
 
+    public String getTipoProducto() {
+        return tipoProducto;
+    }
+
+    public void setTipoProducto(String tipoProducto) {
+        this.tipoProducto = tipoProducto;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -43,7 +60,7 @@ public class Proveedor {
     public void setEmail(String email) {
         this.email = email;
     }
-    
+
     public String getTelefono() {
         return telefono;
     }
@@ -52,11 +69,12 @@ public class Proveedor {
         this.telefono = telefono;
     }
 
-    public String getTipoProducto() {
-        return tipoProducto;
+    // NUEVO: Getter y Setter para Dirección
+    public String getDireccion() {
+        return direccion;
     }
 
-    public void setTipoProducto(String tipoProducto) {
-        this.tipoProducto = tipoProducto;
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 }

@@ -1,160 +1,278 @@
-// Obtener elementos del DOM
-const newProformaBtn = document.getElementById('new-proforma-btn');
-const modal = document.getElementById('proforma-modal');
-const closeBtn = document.querySelector('.close');
-const cancelBtn = document.querySelector('.btn-cancelar');
-const saveBtn = document.querySelector('.btn-guardar');
-const proformaForm = document.getElementById('proforma-form');
-const emailInput = document.getElementById('email');
-const domainOptions = document.querySelectorAll('.domain-option');
+/* -----------------------------------------------------------
+ VARIABLES PRINCIPALES
+ -----------------------------------------------------------*/
+const itemsBody = document.getElementById('items-body');
+const subtotalDisplay = document.getElementById('subtotal_display');
+const impuestosDisplay = document.getElementById('impuestos_display');
+const totalDisplay = document.getElementById('total_display');
+const presupuestoHidden = document.getElementById('presupuesto_hidden_input');
+const btnSubmit = document.getElementById('btn-submit-proforma');
 
-// Abrir modal
-newProformaBtn.addEventListener('click', function() {
-  modal.style.display = 'block';
-  // Limpiar formulario al abrir
-  proformaForm.reset();
-});
+const servicioSelect = document.getElementById('servicio_select');
+const productoSelect = document.getElementById('producto_select');
+const cantidadInput = document.getElementById('cantidad_input');
+const clienteSelect = document.getElementById("docu_cliente_select");
 
-// Cerrar modal
-closeBtn.addEventListener('click', closeModal);
-cancelBtn.addEventListener('click', closeModal);
+let detalleItems = [];
+const IGV_RATE = 0.18;
 
-// Cerrar modal al hacer clic fuera del contenido
-window.addEventListener('click', function(event) {
-  if (event.target === modal) {
-    closeModal();
-  }
-});
+/* -----------------------------------------------------------
+ FUNCIÓN: RECALCULAR TOTALES
+ -----------------------------------------------------------*/
+function recalcularTotales() {
+    let totalGeneral = 0;
+    detalleItems.forEach(item => totalGeneral += item.subtotal);
 
-// Función para cerrar modal
-function closeModal() {
-  modal.style.display = 'none';
+    const totalRedondeado = parseFloat(totalGeneral.toFixed(2));
+    const subtotal = totalRedondeado / (1 + IGV_RATE);
+    const impuestos = totalRedondeado - subtotal;
+
+    subtotalDisplay.value = subtotal.toFixed(2);
+    impuestosDisplay.value = impuestos.toFixed(2);
+    totalDisplay.value = totalRedondeado.toFixed(2);
+    presupuestoHidden.value = totalRedondeado.toFixed(2);
+
+    btnSubmit.disabled = detalleItems.length === 0 || clienteSelect.value === "";
 }
 
-// Manejar clic en opciones de dominio
-domainOptions.forEach(option => {
-  option.addEventListener('click', function() {
-    const domain = this.textContent;
-    const currentEmail = emailInput.value;
-    
-    // Si ya hay un @ en el email, reemplazar solo la parte después del @
-    if (currentEmail.includes('@')) {
-      const username = currentEmail.split('@')[0];
-      emailInput.value = username + '@' + domain;
-    } else {
-      // Si no hay @, agregar el dominio completo
-      emailInput.value = currentEmail + '@' + domain;
+/* -----------------------------------------------------------
+ AGREGAR ÍTEM
+ -----------------------------------------------------------*/
+function agregarItem() {
+    let selectedOption, type, id, description, price;
+    const cantidad = parseInt(cantidadInput.value);
+
+    if (servicioSelect.value && productoSelect.value) {
+        alert("Debe elegir solo Servicio O Producto.");
+        return;
     }
-    
-    // Enfocar el input de email
-    emailInput.focus();
-  });
+
+    if (servicioSelect.value) {
+        selectedOption = servicioSelect.options[servicioSelect.selectedIndex];
+        type = "Servicio";
+        id = servicioSelect.value;
+        description = selectedOption.text.trim();
+        price = parseFloat(selectedOption.dataset.precio);
+    } else if (productoSelect.value) {
+        selectedOption = productoSelect.options[productoSelect.selectedIndex];
+        type = "Producto";
+        id = productoSelect.value;
+        description = selectedOption.text.trim();
+        price = parseFloat(selectedOption.dataset.precio);
+    } else {
+        alert("Seleccione un Servicio o Producto.");
+        return;
+    }
+
+    if (cantidad < 1 || isNaN(cantidad)) {
+        alert("Cantidad inválida.");
+        return;
+    }
+
+    const itemSubtotal = price * cantidad;
+
+    detalleItems.push({
+        uniqueId: Date.now(),
+        tipo: type,
+        id: id,
+        descripcion: description.split(" - S/")[0],
+        precioUnitario: price,
+        cantidad: cantidad,
+        subtotal: itemSubtotal
+    });
+
+    renderizarItems();
+    recalcularTotales();
+
+    servicioSelect.value = "";
+    productoSelect.value = "";
+    cantidadInput.value = 1;
+}
+
+/* -----------------------------------------------------------
+ ELIMINAR ÍTEM
+ -----------------------------------------------------------*/
+function eliminarItem(id) {
+    detalleItems = detalleItems.filter(item => item.uniqueId !== id);
+    renderizarItems();
+    recalcularTotales();
+}
+
+/* -----------------------------------------------------------
+ RENDERIZAR ITEMS EN LA TABLA + INPUTS OCULTOS
+ -----------------------------------------------------------*/
+function renderizarItems() {
+    itemsBody.innerHTML = "";
+    const form = document.getElementById("proforma-form");
+
+    document.querySelectorAll('#proforma-form input[name^="detalle_items"]').forEach(input => input.remove());
+
+    if (detalleItems.length === 0) {
+        itemsBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:10px;color:#999;">No hay ítems</td></tr>`;
+        return;
+    }
+
+    let index = 0;
+    detalleItems.forEach(item => {
+        const row = itemsBody.insertRow();
+        row.innerHTML = `
+            <td>${item.tipo}</td>
+            <td>${item.descripcion}</td>
+            <td style="text-align:right;">S/ ${item.precioUnitario.toFixed(2)}</td>
+            <td style="text-align:center;">${item.cantidad}</td>
+            <td style="text-align:right;font-weight:bold;">S/ ${item.subtotal.toFixed(2)}</td>
+            <td style="text-align:center;">
+                <button type="button" onclick="eliminarItem(${item.uniqueId})">❌</button>
+            </td>
+        `;
+
+        form.insertAdjacentHTML("beforeend",
+                `<input type="hidden" name="detalle_items[${index}].id" value="${item.id}">
+             <input type="hidden" name="detalle_items[${index}].tipo" value="${item.tipo === "Servicio" ? 0 : 1}">
+             <input type="hidden" name="detalle_items[${index}].cantidad" value="${item.cantidad}">
+             <input type="hidden" name="detalle_items[${index}].precioUnitario" value="${item.precioUnitario}">`
+                );
+        index++;
+    });
+}
+
+/* -----------------------------------------------------------
+ CARGA DE CLIENTE (FETCH)
+ -----------------------------------------------------------*/
+function cargarDatosCliente() {
+    const docu = clienteSelect.value;
+
+    const limpiarCamposCliente = () => {
+        document.getElementById("cliente_nombre").value = "";
+        document.getElementById("cliente_empresa").value = "";
+        document.getElementById("cliente_email").value = "";
+        recalcularTotales();
+    };
+
+    if (!docu) {
+        limpiarCamposCliente();
+        return;
+    }
+
+    fetch(CONTEXT_PATH + "/ClienteData?docu=" + docu)
+            .then(r => r.ok ? r.json() : Promise.reject("Error HTTP " + r.status))
+            .then(data => {
+                if (data.error || !data.nombre) {
+                    limpiarCamposCliente();
+                    document.getElementById("cliente_nombre").value = "Error al cargar";
+                    return;
+                }
+
+                document.getElementById("cliente_nombre").value = data.nombre;
+                document.getElementById("cliente_empresa").value = data.direccion || "";
+                document.getElementById("cliente_email").value = data.email;
+
+                recalcularTotales();
+            })
+            .catch(e => {
+                console.error("Error en FETCH:", e);
+                limpiarCamposCliente();
+                document.getElementById("cliente_nombre").value = "Error de conexión";
+            });
+}
+
+/* -----------------------------------------------------------
+ MODAL PRINCIPAL DE PROFORMA
+ -----------------------------------------------------------*/
+const modal = document.getElementById("proforma-modal");
+const newProformaBtn = document.getElementById("new-proforma-btn");
+
+newProformaBtn.onclick = () => {
+    modal.style.display = "block";
+    document.getElementById("fecha_emision").value = new Date().toISOString().slice(0, 10);
+};
+
+function cerrarModal() {
+    modal.style.display = "none";
+    document.getElementById("proforma-form").reset();
+    detalleItems = [];
+    renderizarItems();
+    recalcularTotales();
+}
+
+document.querySelector(".close").onclick = cerrarModal;
+document.querySelector(".btn-cancelar").onclick = cerrarModal;
+
+/* -----------------------------------------------------------
+ MODAL DE ESTADO (SEGUNDO MODAL)
+ -----------------------------------------------------------*/
+const modalEstado = document.getElementById("modal-estado-proforma");
+const nuevoEstadoSelect = document.getElementById("nuevo_estado");
+
+function abrirModalEstado(idProforma, estadoActual) {
+    document.getElementById('estado_id_proforma').value = idProforma;
+    document.getElementById('estado_display_id').textContent = idProforma;
+    nuevoEstadoSelect.value = estadoActual;
+
+    modalEstado.style.display = "block";
+}
+
+function cerrarModalEstado() {
+    modalEstado.style.display = "none";
+}
+
+document.querySelector(".close-estado").onclick = cerrarModalEstado;
+
+
+/* -----------------------------------------------------------
+ VER PROFORMA (REDIRECCIÓN)
+ -----------------------------------------------------------*/
+function verProforma(id) {
+    window.location.href = `${CONTEXT_PATH}/GestionProformas?accion=ver&id=` + id;
+}
+
+/* -----------------------------------------------------------
+ CONTROL UNIFICADO DE CLICK FUERA DE LOS MODALES
+ -----------------------------------------------------------*/
+window.addEventListener("click", e => {
+    if (e.target === modal) {
+        cerrarModal();
+    } else if (e.target === modalEstado) {
+        cerrarModalEstado();
+    }
 });
 
-// Manejar envío del formulario
-saveBtn.addEventListener('click', function() {
-  // Validar formulario
-  if (validateForm()) {
-    // Obtener datos del formulario
-    const formData = getFormData();
-    
-    // Aquí puedes enviar los datos a tu backend o procesarlos
-    console.log('Datos de la proforma:', formData);
-    
-    // Mostrar mensaje de éxito
-    alert('Proforma guardada exitosamente');
-    
-    // Cerrar modal
-    closeModal();
-    
-    // Opcional: agregar la nueva proforma a la tabla
-    addProformaToTable(formData);
-  }
+/* -----------------------------------------------------------
+ AUTOCOMPLETAR DOMINIO EMAIL
+ -----------------------------------------------------------*/
+const emailInput = document.getElementById("email");
+const domainOptions = document.querySelectorAll(".domain-option");
+
+domainOptions.forEach(opt => {
+    opt.addEventListener("click", () => {
+        const domain = opt.textContent;
+        let val = emailInput.value;
+
+        if (val.includes("@"))
+            val = val.split("@")[0];
+
+        emailInput.value = val + "@" + domain;
+        emailInput.focus();
+    });
 });
 
-// Validar formulario
-function validateForm() {
-  const nombres = document.getElementById('nombres').value.trim();
-  const producto = document.getElementById('producto').value.trim();
-  
-  if (!nombres) {
-    alert('Por favor, ingresa el nombre del cliente');
-    document.getElementById('nombres').focus();
-    return false;
-  }
-  
-  if (!producto) {
-    alert('Por favor, ingresa el producto o servicio');
-    document.getElementById('producto').focus();
-    return false;
-  }
-  
-  return true;
-}
+/* -----------------------------------------------------------
+ CONTROL: SERVICIO VS PRODUCTO
+ -----------------------------------------------------------*/
+servicioSelect.addEventListener("change", () => {
+    if (servicioSelect.value)
+        productoSelect.value = "";
+});
 
-// Obtener datos del formulario
-function getFormData() {
-  const nombres = document.getElementById('nombres').value.trim();
-  const empresa = document.getElementById('empresa').value.trim();
-  const telefono = document.getElementById('telefono').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const producto = document.getElementById('producto').value.trim();
-  const cantidad = document.getElementById('cantidad').value;
-  const presupuesto = document.getElementById('presupuesto').value;
-  const descripcion = document.getElementById('descripcion').value.trim();
-  
-  return {
-    nombres,
-    empresa,
-    telefono,
-    email,
-    producto,
-    cantidad: parseInt(cantidad) || 1,
-    presupuesto: parseFloat(presupuesto) || 0,
-    descripcion,
-    fechaEmision: new Date().toLocaleDateString('es-ES'),
-    estado: 'Pendiente',
-    numeroProforma: generateProformaNumber()
-  };
-}
+productoSelect.addEventListener("change", () => {
+    if (productoSelect.value)
+        servicioSelect.value = "";
+});
 
-// Generar número de proforma
-function generateProformaNumber() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-  
-  return `PF-${year}${month}${day}-${random}`;
-}
-
-// Agregar proforma a la tabla (opcional)
-function addProformaToTable(proformaData) {
-  const tableBody = document.querySelector('.proformas-table tbody');
-  const newRow = document.createElement('tr');
-  
-  // Determinar clase de estado
-  let statusClass = 'status-pendiente';
-  let statusText = 'Pendiente';
-  
-  newRow.innerHTML = `
-    <td>${proformaData.numeroProforma}</td>
-    <td>${proformaData.nombres}${proformaData.empresa ? ' - ' + proformaData.empresa : ''}</td>
-    <td>${proformaData.fechaEmision}</td>
-    <td>$${proformaData.presupuesto.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-    <td>
-      <span class="status-tag ${statusClass}">${statusText}</span>
-    </td>
-  `;
-  
-  // Agregar la nueva fila al principio de la tabla
-  tableBody.insertBefore(newRow, tableBody.firstChild);
-}
-
-// Manejar tecla Escape para cerrar modal
-document.addEventListener('keydown', function(event) {
-  if (event.key === 'Escape' && modal.style.display === 'block') {
-    closeModal();
-  }
+/* -----------------------------------------------------------
+ INICIALIZACIÓN
+ -----------------------------------------------------------*/
+document.addEventListener("DOMContentLoaded", () => {
+    renderizarItems();
+    recalcularTotales();
 });

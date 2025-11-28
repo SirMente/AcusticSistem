@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import models.DAO.ClienteDAO;
 import models.Cliente;
@@ -9,7 +9,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.sql.SQLException; 
+import java.sql.SQLException;
 
 @WebServlet("/GestionClientes")
 public class GestionClientesController extends HttpServlet {
@@ -19,112 +19,138 @@ public class GestionClientesController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        // --- 1. PROTEGER RUTA ---
+
+        // --- PROTEGER RUTA ---
         if (request.getSession().getAttribute("usuarioLogueado") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
-        // --- 2. MANEJAR ACCIONES GET (Eliminar) ---
+        // --- ACCIONES GET ---
         String operacion = request.getParameter("operacion");
-        
+
         if ("eliminar".equals(operacion)) {
             eliminarCliente(request, response);
             return;
         }
-        
-        // Si no hay acción específica, simplemente LISTAR
+
+        // Si no hay acción → listar
         listarClientes(request, response);
     }
-    
-    private void listarClientes(HttpServletRequest request, HttpServletResponse response) 
+
+    private void listarClientes(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
             List<Cliente> listaClientes = clienteDAO.obtenerTodosLosClientes();
             request.setAttribute("listaClientes", listaClientes);
-            request.getRequestDispatcher("WEB-INF/views/gestionClientes.jsp").forward(request, response);
+            request.getRequestDispatcher("views/gestionClientes.jsp").forward(request, response);
+
         } catch (SQLException e) {
-            System.err.println("Error SQL en listarClientes (SELECT): " + e.getMessage());
+            System.err.println("Error SQL en listarClientes: " + e.getMessage());
             request.setAttribute("error", "Error al cargar los clientes: " + e.getMessage());
-            request.getRequestDispatcher("WEB-INF/views/gestionClientes.jsp").forward(request, response);
+            request.getRequestDispatcher("views/gestionClientes.jsp").forward(request, response);
         }
     }
-    
-    private void eliminarCliente(HttpServletRequest request, HttpServletResponse response) 
+
+    private void eliminarCliente(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        String idParam = request.getParameter("id");
-        
-        if (idParam != null) {
+
+        // Se usa 'dni' en la URL, que internamente se mapea a 'docu' en el DAO
+        String dniParam = request.getParameter("dni");
+
+        if (dniParam != null) {
             try {
-                int idCliente = Integer.parseInt(idParam);
+                // LIMPIEZA: Eliminar espacios en blanco
+                String dniLimpio = dniParam.trim();
+
+                // CONVERSIÓN
+                long idCliente = Long.parseLong(dniLimpio);
+
                 clienteDAO.eliminarCliente(idCliente);
-                
+
                 response.sendRedirect(request.getContextPath() + "/GestionClientes?mensaje=eliminado_exitoso");
                 return;
+
             } catch (NumberFormatException e) {
-                response.sendRedirect(request.getContextPath() + "/GestionClientes?error=id_invalido");
+                response.sendRedirect(request.getContextPath() + "/GestionClientes?error=dni_invalido");
                 return;
+
             } catch (SQLException e) {
                 System.err.println("Error SQL al eliminar: " + e.getMessage());
                 response.sendRedirect(request.getContextPath() + "/GestionClientes?error=bd_eliminar");
                 return;
             }
         }
+
         response.sendRedirect(request.getContextPath() + "/GestionClientes");
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         if (request.getSession().getAttribute("usuarioLogueado") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
-        // 🔑 CLAVE: Obtener el ID oculto del formulario
-        String idParam = request.getParameter("id_cliente"); 
+        // --- DATOS DEL FORMULARIO ---
+        // dni_cliente es el docu del cliente a EDITAR (si aplica)
+        String docuParam = request.getParameter("docu_cliente");
         String nombre = request.getParameter("nombre");
-        String empresa = request.getParameter("empresa");
+        String direccion = request.getParameter("direccion");
         String telefono = request.getParameter("telefono");
         String email = request.getParameter("email");
-        
-        // Validación básica
-        if (nombre == null || nombre.trim().isEmpty() || email == null || email.trim().isEmpty()) {
-            request.setAttribute("error", "El nombre y el email son campos obligatorios.");
+
+        // Validación
+        if (nombre == null || nombre.trim().isEmpty()
+                || email == null || email.trim().isEmpty()) {
+
+            request.setAttribute("error", "El nombre y el email son obligatorios.");
             listarClientes(request, response);
             return;
         }
 
         try {
-            int idCliente = 0;
-            if (idParam != null && !idParam.trim().isEmpty()) {
-                 // Convertir el ID, si no es válido, lanzará NumberFormatException
-                idCliente = Integer.parseInt(idParam); 
+            long docuExistente = 0;
+            String docuParamLimpio = request.getParameter("docu_cliente") != null
+                    ? request.getParameter("docu_cliente").trim() : null;
+
+            // --- Lógica de Edición (UPDATE) ---
+            if (docuParamLimpio != null && !docuParamLimpio.isEmpty()) {
+                docuExistente = Long.parseLong(docuParamLimpio);
             }
-            
-            // 🔑 LÓGICA CORREGIDA: Si idCliente > 0, es Edición (UPDATE)
-            if (idCliente > 0) {
-                // ES EDICIÓN
-                Cliente clienteEditado = new Cliente(idCliente, nombre, empresa, telefono, email);
-                clienteDAO.editarCliente(clienteEditado);
+
+            if (docuExistente > 0) {
+                Cliente clienteEdit = new Cliente(docuExistente, nombre, direccion, telefono, email);
+                clienteDAO.editarCliente(clienteEdit);
+
                 response.sendRedirect(request.getContextPath() + "/GestionClientes?mensaje=editado_exitoso");
-            } else {
-                // ES AGREGAR (idCliente es 0)
-                Cliente nuevoCliente = new Cliente(nombre, empresa, telefono, email);
-                clienteDAO.agregarCliente(nuevoCliente);
-                response.sendRedirect(request.getContextPath() + "/GestionClientes?mensaje=agregado_exitoso");
+                return;
             }
+
+            // --- Lógica de Inserción (INSERT) ---
+            // Obtener y limpiar el DNI/RUC para un nuevo registro
+            String docuNuevoStr = request.getParameter("docu");
+            if (docuNuevoStr == null || docuNuevoStr.trim().isEmpty()) {
+                throw new NumberFormatException("El número de documento no puede estar vacío.");
+            }
+            long nuevoDocu = Long.parseLong(docuNuevoStr.trim()); // Limpieza
+
+            Cliente nuevoCliente = new Cliente(nuevoDocu, nombre, direccion, telefono, email);
+            clienteDAO.agregarCliente(nuevoCliente);
+
+            response.sendRedirect(request.getContextPath() + "/GestionClientes?mensaje=agregado_exitoso");
+
         } catch (NumberFormatException e) {
-            // Error si el ID enviado no era un número
-            request.setAttribute("error", "Error interno: El ID de cliente enviado no es válido.");
-            listarClientes(request, response); 
+            // Si falla el parseo (ej. RUC tiene un espacio)
+            request.setAttribute("error", "Formato de documento inválido: Asegúrese de que es solo numérico y tiene el largo correcto.");
+            listarClientes(request, response);
+
         } catch (SQLException e) {
             System.err.println("Error SQL en doPost: " + e.getMessage());
-            request.setAttribute("error", "Error de la BD al guardar/actualizar: " + e.getMessage());
-            listarClientes(request, response); 
+            request.setAttribute("error", "Error de BD al guardar/actualizar: " + e.getMessage());
+            listarClientes(request, response);
         }
     }
 }
