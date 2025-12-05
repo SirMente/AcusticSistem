@@ -23,7 +23,7 @@ RUN mvn clean install -DskipTests
 # ETAPA 2: RUNTIME (Ejecuta la Aplicación en Tomcat 11)
 # ===============================================
 # Usamos la imagen base ligera de Tomcat
-FROM tomcat:11.0.21-jdk21-temurin
+FROM tomcat:10.1.20-jdk21-temurin
 
 # 1. Copia el archivo WAR DE LA ETAPA ANTERIOR a la carpeta webapps
 # El nombre del WAR es el artefacto de tu pom.xml
