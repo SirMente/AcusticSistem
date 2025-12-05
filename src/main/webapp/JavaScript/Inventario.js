@@ -1,8 +1,9 @@
 // JavaScript/Inventario.js
 
 document.addEventListener('DOMContentLoaded', function () {
+
     // ----------------------------------------------------
-    // 1. Obtener elementos del DOM (IDs del JSP de Inventario)
+    // 1. Obtener elementos del DOM
     // ----------------------------------------------------
     const modal = document.getElementById('add-item-modal');
     const form = document.getElementById('add-item-form');
@@ -12,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnOpenModal = document.getElementById('open-modal-btn');
     const btnCloseModal = document.getElementById('close-modal-btn');
 
-    // CAMPOS DE DATOS DEL PRODUCTO
+    // CAMPOS DE FORMULARIO
     const inputId = document.getElementById('producto-id');
     const inputNombre = document.getElementById('articulo-nombre');
     const inputDescripcion = document.getElementById('articulo-descripcion');
@@ -22,44 +23,53 @@ document.addEventListener('DOMContentLoaded', function () {
     const inputStockMinimo = document.getElementById('articulo-stock-minimo');
     const inputPrecio = document.getElementById('articulo-precio');
     const inputRucProveedor = document.getElementById('ruc-proveedor');
-    const inputImagenUrl = document.getElementById('imagen-url');
+    const inputImagenUrl = document.getElementById('imagen-url'); // hidden
+    const inputImagen = document.getElementById('imagen');        // file input
+    const previewImg = document.getElementById('preview-img');    // preview
 
-    // Campo de acción
     const inputAccion = document.getElementById('action-type');
 
-    // Función para ABRIR el modal (usa la clase 'active' del CSS)
-    function openModal() {
-        modal.classList.add('active'); // <-- CLAVE: Añadir la clase 'active'
-    }
-
-    // Función para CERRAR el modal (remueve la clase 'active' del CSS)
-    function closeModal() {
-        modal.classList.remove('active'); // <-- CLAVE: Remover la clase 'active'
-    }
 
     // ----------------------------------------------------
-    // 2. Lógica para botón AGREGAR (Nuevo Producto)
+    // FUNCIONES PARA ABRIR Y CERRAR MODAL
+    // ----------------------------------------------------
+    function openModal() {
+        modal.classList.add('active');
+    }
+
+    function closeModal() {
+        modal.classList.remove('active');
+    }
+
+
+    // ----------------------------------------------------
+    // 2. Lógica para NUEVO PRODUCTO
     // ----------------------------------------------------
     btnOpenModal.addEventListener('click', function () {
-        // Resetear el formulario para AGREGAR
+
         inputId.value = '0';
         inputAccion.value = 'agregar';
         tituloModal.textContent = 'Agregar Nuevo Artículo';
         btnSubmit.textContent = 'Guardar Artículo';
-        form.reset();
 
-        openModal(); // <-- Usar la nueva función
+        form.reset();
+        inputImagenUrl.value = "";  // quitar referencia previa
+
+        // quitar previsualización
+        previewImg.style.display = 'none';
+        previewImg.src = "";
+
+        openModal();
     });
 
+
     // ----------------------------------------------------
-    // 3. Lógica para botones EDITAR (Pre-llenar el formulario)
+    // 3. Botones EDITAR PRODUCTO
     // ----------------------------------------------------
     document.querySelectorAll('.edit-btn').forEach(button => {
         button.addEventListener('click', function (e) {
             e.preventDefault();
 
-            // 🔑 Llenar el formulario con los datos del data-attribute (usando los nuevos campos)
-            // Se usa 'decodeURIComponent' para manejar los valores codificados del JSP
             inputId.value = this.getAttribute('data-id');
             inputNombre.value = decodeURIComponent(this.getAttribute('data-nombre'));
             inputDescripcion.value = decodeURIComponent(this.getAttribute('data-descripcion'));
@@ -68,38 +78,66 @@ document.addEventListener('DOMContentLoaded', function () {
             inputCantidad.value = this.getAttribute('data-cantidad');
             inputStockMinimo.value = this.getAttribute('data-stock-minimo');
             inputPrecio.value = this.getAttribute('data-precio');
-            inputImagenUrl.value = decodeURIComponent(this.getAttribute('data-imagen-url'));
 
-            // Seleccionar el RUC en el <select>
+            // proveedor
             const rucProveedorValue = this.getAttribute('data-ruc-proveedor');
-            if (inputRucProveedor) {
-                inputRucProveedor.value = rucProveedorValue;
+            inputRucProveedor.value = rucProveedorValue;
+
+            // --- IMAGEN ACTUAL ---
+            let imgUrl = decodeURIComponent(this.getAttribute('data-imagen-url'));
+
+            if (imgUrl && imgUrl !== "null" && imgUrl !== "") {
+                inputImagenUrl.value = imgUrl; // mantener imagen existente
+
+                // contextPath debe existir en JSP:
+                // <script>const contextPath = "<%= request.getContextPath() %>";</script>
+                previewImg.src = contextPath + "/" + imgUrl;
+                previewImg.style.display = "block";
+            } else {
+                previewImg.src = "";
+                previewImg.style.display = "none";
+                inputImagenUrl.value = "";
             }
 
-            // Cambiar la UI para EDITAR y la acción del Controller
             inputAccion.value = 'actualizar';
             tituloModal.textContent = 'Editar Artículo';
             btnSubmit.textContent = 'Guardar Cambios';
 
-            openModal(); // <-- Usar la nueva función
+            openModal();
         });
     });
 
+
     // ----------------------------------------------------
-    // 4. Lógica para cerrar el modal
+    // 4. Cerrar modal
     // ----------------------------------------------------
     btnCloseModal.addEventListener('click', function () {
-        closeModal(); // <-- Usar la nueva función
+        closeModal();
     });
 
-    // Cerrar si se clickea fuera del modal
     window.addEventListener('click', function (event) {
         if (event.target === modal) {
-            closeModal(); // <-- Usar la nueva función
+            closeModal();
         }
     });
 
+
     // ----------------------------------------------------
-    // (Opcional) Implementación de búsqueda en la tabla (si la necesitas)
+    // 5. PREVISUALIZAR IMAGEN NUEVA
     // ----------------------------------------------------
+    inputImagen.addEventListener("change", function () {
+        const file = this.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = "block";
+            }
+
+            reader.readAsDataURL(file);
+        }
+    });
+
 });

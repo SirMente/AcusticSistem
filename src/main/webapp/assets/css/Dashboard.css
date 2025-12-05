@@ -359,3 +359,86 @@ body {
         font-size: 2rem; 
     }
 }
+
+.dashboard-container {
+    padding: 120px 40px;
+}
+
+.titulo {
+    font-size: 28px;
+    margin-bottom: 25px;
+}
+
+/* KPI GRID */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.kpi-card {
+    background: #fff;
+    padding: 22px;
+    display: flex;
+    gap: 15px;
+    border-radius: 12px;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: 0.2s;
+}
+
+.kpi-card:hover {
+    transform: translateY(-3px);
+}
+
+.kpi-card i {
+    font-size: 45px;
+    color: #2E86DE;
+}
+
+.kpi-card.alerta {
+    border-left: 6px solid #E74C3C;
+}
+
+/* GRÁFICOS */
+.graficos-seccion {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.grafico-card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* ACCESOS RÁPIDOS */
+.accesos-rapidos {
+    margin-top: 50px;
+}
+
+.accesos-grid {
+    margin-top: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+    gap: 20px;
+}
+
+.btn-acceso {
+    padding: 18px;
+    background: #2E86DE;
+    color: #fff;
+    text-align: center;
+    border-radius: 10px;
+    display: block;
+    font-size: 16px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.btn-acceso i {
+    margin-right: 8px;
+}

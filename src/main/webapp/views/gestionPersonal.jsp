@@ -30,8 +30,8 @@
                     <li><a href="<%= request.getContextPath()%>/dashboard">Inicio</a></li>
                     <li><a href="<%= request.getContextPath()%>/Proveedores" >Proveedores</a></li>
                     <li><a href="<%= request.getContextPath()%>/GestionClientes">Clientes</a></li>
-                    <li class="active"><a href="<%= request.getContextPath()%>/GestionPersonal" class="active">Personal</a></li>
                     <li><a href="<%= request.getContextPath()%>/ServicioController" >Servicios</a></li>
+                    <li><a href="<%= request.getContextPath()%>/GestionPersonal" class="active">Personal</a></li>
                     <li><a href="<%= request.getContextPath()%>/InventarioController">Inventario</a></li>
                     <li><a href="<%= request.getContextPath()%>/Finanzas">Finanzas</a></li>
                     <li><a href="<%= request.getContextPath()%>/GestionProformas">Proformas</a></li>
@@ -41,7 +41,16 @@
 
             <div class="main">
                 <i class='bx bxs-notification'></i>
+
                 <img src="<%= request.getContextPath()%>/Imagenes/03.jpg" alt="Usuario">
+
+                <!-- 🔥 Botón de Cerrar Sesión -->
+                <a href="<%= request.getContextPath()%>/logout" 
+                   class="btn-logout" 
+                   style="margin-left: 15px; color: #e74c3c; font-weight: bold; text-decoration: none;">
+                    Cerrar sesión
+                </a>
+
                 <i class='bx bx-menu' id="menu-icon"></i>
             </div>
         </header>

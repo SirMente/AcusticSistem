@@ -1,80 +1,80 @@
-    body {
+body {
     font-family: 'Poppins', sans-serif;
     margin: 0;
     padding-top: 100px;
-    }
+}
 
-    .contenido {
+.contenido {
     width: 90%;
     max-width: 1100px;
     margin: auto;
-    }
+}
 
-    h1 {
+h1 {
     font-size: 2rem;
     font-weight: 700;
     color: #111;
     margin-bottom: 1rem;
-    }
+}
 
-    .resumen {
+.resumen {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     gap: 20px;
     flex-wrap: wrap;
-    }
+}
 
-    .card {
+.card {
     background: #fff;
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     flex: 1;
     min-width: 300px;
-    }
+}
 
-    .card h3 {
+.card h3 {
     color: #555;
     font-weight: 600;
     margin-bottom: 10px;
-    }
+}
 
-    .card h1 {
+.card h1 {
     font-size: 2rem;
     margin-bottom: 8px;
-    }
+}
 
-    .positivo {
+.positivo {
     color: #22c55e;
-    }
+}
 
-    .negativo {
+.negativo {
     color: #ef4444;
-    }
+}
 
-    .barras {
+.barras {
     display: flex;
     align-items: flex-end;
     gap: 10px;
     height: 60px;
-    }
+}
 
-    .barras .ingreso {
+.barras .ingreso {
     background: #111;
     width: 40%;
     height: 50px;
     border-radius: 10px;
-    }
+}
 
-    .barras .gasto {
+.barras .gasto {
     background: #ef4444;
     width: 40%;
     height: 30px;
     border-radius: 10px;
-    }
+}
 
-    .circulo {
+.circulo {
     width: 80px;
     height: 80px;
     border: 8px solid #eee;
@@ -86,9 +86,9 @@
     margin-top: 10px;
     font-weight: 600;
     font-size: 1.1rem;
-    }
+}
 
-    .nuevo-registro {
+.nuevo-registro {
     background: #000;
     color: #fff;
     border: none;
@@ -97,106 +97,163 @@
     cursor: pointer;
     font-weight: 500;
     transition: 0.3s;
-    }
+}
 
-    .nuevo-registro:hover {
+.nuevo-registro:hover {
     background: #333;
-    }
+}
 
-    .reportes {
+.reportes {
     margin-top: 40px;
-    }
+}
 
-    table {
+table {
     width: 100%;
     border-collapse: collapse;
     background: #fff;
     border-radius: 10px;
     overflow: hidden;
-    }
+}
 
-    th, td {
+th, td {
     padding: 12px 15px;
     text-align: left;
-    }
+}
 
-    th {
+th {
     background: #f1f5f9;
     color: #666;
     font-weight: 600;
     font-size: 0.9rem;
-    }
+}
 
-    td {
+td {
     border-bottom: 1px solid #eee;
-    }
+}
 
-    td:nth-child(3) {
+td:nth-child(3) {
     color: #16a34a;
-    }
+}
 
-    td:nth-child(4) {
+td:nth-child(4) {
     color: #dc2626;
-    }
+}
 
-    /* Modal */
-    .modal {
+
+/* ========================================================= */
+/* ===================== MODAL MEJORADO ===================== */
+/* ========================================================= */
+
+.modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.45);
     display: none;
     justify-content: center;
     align-items: center;
-    }
+    z-index: 9999;
+}
 
-    .modal-content {
+.modal-content {
     background: #ffffff;
     padding: 30px;
-    border-radius: 12px;
+    border-radius: 15px;
     width: 400px;
-    text-align: center;
-    }
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    animation: aparecer 0.25s ease-out;
+    transform-origin: center;
+}
 
-    .modal-content h2 {
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-content h2 {
     margin-bottom: 15px;
-    }
+    font-weight: 600;
+    color: #111;
+}
 
-    .modal-content form {
+.modal-content form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    }
+    gap: 12px;
+}
 
-    .modal-content input,
-    .modal-content select {
-    padding: 10px;
+.modal-content input,
+.modal-content select {
+    padding: 12px;
     border: 1px solid #ccc;
-    border-radius: 6px;
-    }
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
 
-    .acciones {
+.acciones {
     display: flex;
     justify-content: space-between;
-    margin-top: 10px;
-    }
+    margin-top: 15px;
+}
 
-    .acciones button {
+.acciones button {
     flex: 1;
-    padding: 10px;
+    padding: 12px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    }
+    font-weight: 500;
+    font-size: 0.95rem;
+}
 
-    .acciones button:first-child {
+.acciones button:first-child {
     background: #000;
     color: white;
-    margin-right: 5px;
-    }
+    margin-right: 8px;
+    transition: 0.3s;
+}
 
-    .acciones button:last-child {
-    background: #ccc;
-    }
+.acciones button:first-child:hover {
+    background: #333;
+}
+
+.acciones button:last-child {
+    background: #d1d5db;
+    transition: 0.3s;
+}
+
+.acciones button:last-child:hover {
+    background: #bcbfc4;
+}
+.btn-excel {
+    background: #16a34a; /* Verde tipo Excel */
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-excel:hover {
+    background: #128638;
+    transform: translateY(-2px);
+}
+
+.btn-excel:active {
+    transform: scale(0.97);
+}

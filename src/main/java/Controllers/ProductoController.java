@@ -15,6 +15,15 @@ import models.Proveedor; // << IMPORTAR MODELO PROVEEDOR
 import models.DAO.ProductoDAO;
 import models.DAO.ProveedorDAO; // << IMPORTAR DAO PROVEEDOR
 
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.http.Part;
+
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 5 * 1024 * 1024, // 5MB
+        maxRequestSize = 10 * 1024 * 1024 // 10MB
+)
+
 @WebServlet("/InventarioController")
 public class ProductoController extends HttpServlet {
 
@@ -126,7 +135,35 @@ public class ProductoController extends HttpServlet {
             int cantidad = Integer.parseInt(request.getParameter("cantidad"));
             int stockMinimo = Integer.parseInt(request.getParameter("stock_minimo"));
             BigDecimal precioUnitario = new BigDecimal(request.getParameter("precio_unitario"));
-            String imagenUrl = request.getParameter("imagen_url");
+
+            Part archivoImagen = request.getPart("imagen");
+            String imagenUrl = null;
+
+            if (archivoImagen != null && archivoImagen.getSize() > 0) {
+
+                // Carpeta donde guardaremos las imágenes
+                String uploadPath = getServletContext().getRealPath("") + "uploads";
+
+                java.io.File uploadDir = new java.io.File(uploadPath);
+                if (!uploadDir.exists()) {
+                    uploadDir.mkdir();
+                }
+
+                // Nombre original del archivo
+                String nombreArchivo = java.nio.file.Paths.get(archivoImagen.getSubmittedFileName()).getFileName().toString();
+
+                // Generar ruta final
+                String rutaArchivo = uploadPath + java.io.File.separator + nombreArchivo;
+
+                // Subir archivo
+                archivoImagen.write(rutaArchivo);
+
+                // Ruta que guardaremos en la BD (para usarla en el navegador)
+                imagenUrl = "uploads/" + nombreArchivo;
+            } else {
+                // Si no sube imagen, usar la que llegue en el input hidden (para ediciones)
+                imagenUrl = request.getParameter("imagen_url");
+            }
 
             // RUC
             String rucParam = request.getParameter("ruc_proveedor");

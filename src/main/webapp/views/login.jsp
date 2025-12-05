@@ -1,6 +1,12 @@
 <%-- Directiva de página básica para asegurar el tipo de contenido y la codificación --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
+<%
+    response.setHeader("Cache-Control","no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma","no-cache");
+    response.setDateHeader("Expires",0);
+%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

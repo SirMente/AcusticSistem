@@ -100,38 +100,55 @@ public class ProformaController extends HttpServlet {
         }
     }
 
-    // ⭐ NUEVO MÉTODO PARA CAMBIAR ESTADO ⭐
-    private void handleCambiarEstado(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+// Método para cambiar el estado de una proforma
+private void handleCambiarEstado(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
 
-        // ⭐ CORRECCIÓN: Captura idProforma como STRING directamente.
-        String idProformaStr = request.getParameter("idProforma");
-        String nuevoEstado = request.getParameter("nuevoEstado");
+    String idProformaStr = request.getParameter("idProforma");
+    String nuevoEstado = request.getParameter("nuevoEstado");
 
-        if (idProformaStr == null || idProformaStr.trim().isEmpty() || nuevoEstado == null || nuevoEstado.trim().isEmpty()) {
-            request.setAttribute("error", "Faltan datos para cambiar el estado de la proforma.");
-            doGet(request, response);
-            return;
-        }
+    // Validación básica
+    if (idProformaStr == null || idProformaStr.trim().isEmpty() ||
+        nuevoEstado == null || nuevoEstado.trim().isEmpty()) {
 
-        try {
-            // ⭐ CORRECCIÓN CLAVE: Pasamos el STRING directamente al DAO.
-            // El DAO espera "PF-YYYY-NNN", no un número entero.
-            boolean exito = proformaDAO.actualizarEstadoProforma(idProformaStr, nuevoEstado);
-
-            if (exito) {
-                response.sendRedirect(request.getContextPath() + "/GestionProformas?mensaje=estado_actualizado");
-            } else {
-                request.setAttribute("error", "No se pudo actualizar el estado de la proforma " + idProformaStr + ". La proforma podría no existir.");
-                doGet(request, response);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            request.setAttribute("error", "Error de BD al actualizar estado: " + e.getMessage());
-            doGet(request, response);
-        }
-        // Ya no se necesita el bloque catch(NumberFormatException)
+        request.setAttribute("error", "Faltan datos para cambiar el estado de la proforma.");
+        doGet(request, response);
+        return;
     }
+
+    try {
+        boolean exito = proformaDAO.actualizarEstadoProforma(idProformaStr, nuevoEstado);
+
+        if (exito) {
+            String urlRedireccion = request.getContextPath() + "/GestionProformas?mensaje=estado_actualizado";
+
+            // Si el estado requiere generar un PDF, AÑADIMOS los parámetros a la URL
+            if ("PAGADA_PARCIAL".equals(nuevoEstado) || "PAGADA_TOTAL".equals(nuevoEstado)) {
+                // AGREGAMOS parámetros para que la JSP sepa qué PDF descargar al cargar
+                urlRedireccion += "&descargarPDF=true";
+                urlRedireccion += "&pdfId=" + idProformaStr;
+                urlRedireccion += "&pdfEstado=" + nuevoEstado;
+            }
+
+            // ⚠️ La redirección es ahora SIEMPRE a la página principal
+            response.sendRedirect(urlRedireccion);
+            return;
+
+        } else {
+            request.setAttribute("error",
+                    "No se pudo actualizar el estado de la proforma " + idProformaStr
+                    + ". La proforma podría no existir.");
+            doGet(request, response);
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        request.setAttribute("error",
+                "Error de BD al actualizar estado: " + e.getMessage());
+        doGet(request, response);
+    }
+}
+
 
     // ⭐ MÉTODO EXISTENTE PARA AGREGAR PROFORMA (MOVIDO) ⭐
     private void handleAgregarProforma(HttpServletRequest request, HttpServletResponse response)

@@ -4,6 +4,8 @@
 <%@page import="models.Producto"%>
 <%@page import="models.Servicio"%>
 <%@page import="models.Proforma"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -14,17 +16,88 @@
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-        
+
         <link rel="stylesheet" href="<%= request.getContextPath()%>/assets/css/Encabezado.css">
         <%-- Aquí se incluye el CSS de la tabla y estado --%>
         <link rel="stylesheet" href="<%= request.getContextPath()%>/assets/css/Proforma.css">
         <style>
+            
+            /* Estilos básicos de ejemplo para el modal */
+    .modal {
+        display: none; 
+        position: fixed; 
+        z-index: 1000; 
+        left: 0;
+        top: 0;
+        width: 100%; 
+        height: 100%; 
+        overflow: auto; 
+        background-color: rgba(0,0,0,0.4); 
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto; 
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 400px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+    .modal-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+    }
+    .close-estado {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .close-estado:hover,
+    .close-estado:focus {
+        color: #000;
+        text-decoration: none;
+    }
+    .modal-section {
+        margin-bottom: 20px;
+    }
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+    }
+    .btn-guardar, .btn-cancelar {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .btn-guardar {
+        background-color: #4CAF50;
+        color: white;
+    }
+    .btn-cancelar {
+        background-color: #f44336;
+        color: white;
+    }
             /*
              * ⚠️ ATENCIÓN: Por simplicidad y para que funcione con el cambio,
              * el CSS mejorado se ha insertado aquí. Deberías mover este CSS
              * a tu archivo Proforma.css.
             */
-            
+
             /* --- Estilos Mejorados para la Tabla --- */
             .table-container {
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
@@ -64,7 +137,7 @@
             .proformas-table tbody tr:nth-child(even) {
                 background-color: #f9f9f9; /* Zebra striping */
             }
-            
+
             .proformas-table tbody tr:hover {
                 background-color: #f1f1f1;
                 transition: background-color 0.3s;
@@ -73,7 +146,7 @@
             .proformas-table td:last-child {
                 text-align: center;
             }
-            
+
             /* Estilos para los botones de acción */
             .action-buttons {
                 display: flex;
@@ -112,7 +185,29 @@
                 background-color: #e0a800;
                 transform: translateY(-1px);
             }
-            
+
+            /* Estilo para el botón de descarga PDF */
+            .btn-pdf-download {
+                background-color: #dc3545;      /* Rojo "danger" */
+                color: #fff;
+                padding: 8px 12px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background-color 0.2s, transform 0.1s;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                text-decoration: none;          /* Importante si se usa en <a> */
+            }
+
+            .btn-pdf-download:hover {
+                background-color: #c82333;      /* Rojo más oscuro */
+                transform: translateY(-1px);
+            }
+
+
             /* Estilos para los tags de estado */
             .status-tag {
                 display: inline-block;
@@ -144,8 +239,8 @@
                 background-color: #ffcdd2;
                 color: #d32f2f; /* Rojo oscuro */
             }
-            
-            
+
+
             /* --- Estilos Mejorados para Modal de Estado --- */
             .small-modal {
                 max-width: 400px !important; /* Más pequeño para edición de estado */
@@ -155,7 +250,7 @@
                 padding: 20px;
                 border-bottom: 1px solid #eee;
             }
-            
+
             #modal-estado-proforma .modal-section p {
                 margin-bottom: 15px;
                 font-size: 15px;
@@ -170,14 +265,14 @@
                 box-sizing: border-box;
                 font-size: 14px;
             }
-            
+
             #modal-estado-proforma .modal-footer {
                 display: flex;
                 justify-content: flex-end;
                 gap: 10px;
                 padding: 15px 20px;
             }
-            
+
             #modal-estado-proforma .btn-cancelar {
                 background-color: #6c757d;
                 color: white;
@@ -197,8 +292,12 @@
                 transition: background-color 0.2s;
             }
 
-            #modal-estado-proforma .btn-cancelar:hover { background-color: #5a6268; }
-            #modal-estado-proforma .btn-guardar:hover { background-color: #0056b3; }
+            #modal-estado-proforma .btn-cancelar:hover {
+                background-color: #5a6268;
+            }
+            #modal-estado-proforma .btn-guardar:hover {
+                background-color: #0056b3;
+            }
         </style>
     </head>
 
@@ -214,9 +313,10 @@
             <nav>
                 <ul class="navbar" id="navbar">
                     <li><a href="<%= request.getContextPath()%>/dashboard">Inicio</a></li>
-                    <li ><a href="<%= request.getContextPath()%>/Proveedores" >Proveedores</a></li>
-                    <li><a href="<%= request.getContextPath()%>/GestionClientes" >Clientes</a></li>
+                    <li><a href="<%= request.getContextPath()%>/Proveedores" >Proveedores</a></li>
+                    <li><a href="<%= request.getContextPath()%>/GestionClientes">Clientes</a></li>
                     <li><a href="<%= request.getContextPath()%>/ServicioController" >Servicios</a></li>
+                    <li><a href="<%= request.getContextPath()%>/GestionPersonal" >Personal</a></li>
                     <li><a href="<%= request.getContextPath()%>/InventarioController">Inventario</a></li>
                     <li><a href="<%= request.getContextPath()%>/Finanzas">Finanzas</a></li>
                     <li><a href="<%= request.getContextPath()%>/GestionProformas" class="active">Proformas</a></li>
@@ -226,7 +326,16 @@
 
             <div class="main">
                 <i class='bx bxs-notification'></i>
+
                 <img src="<%= request.getContextPath()%>/Imagenes/03.jpg" alt="Usuario">
+
+                <!-- 🔥 Botón de Cerrar Sesión -->
+                <a href="<%= request.getContextPath()%>/logout" 
+                   class="btn-logout" 
+                   style="margin-left: 15px; color: #e74c3c; font-weight: bold; text-decoration: none;">
+                    Cerrar sesión
+                </a>
+
                 <i class='bx bx-menu' id="menu-icon"></i>
             </div>
         </header>
@@ -335,6 +444,16 @@
                                         onclick="abrirModalEstado('<%= proforma.getIdProforma()%>', '<%= estadoBD%>')">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </button>
+
+                                    <%-- Botón de Descarga Condicional --%>
+                                    <% if (estadoBD.equals("PAGADA_PARCIAL") || estadoBD.equals("PAGADA_TOTAL")) {%>
+                                    <a href="<%= request.getContextPath()%>/GenerarPDF?id=<%= proforma.getIdProforma()%>&estado=<%= estadoBD%>"
+                                       title="Descargar Comprobante de Pago"
+                                       class="btn-pdf-download">
+                                        <i class="fa-solid fa-file-pdf"></i>
+                                    </a>
+                                    <% } %>
+
                                 </div>
                             </td>
 
@@ -357,8 +476,8 @@
 
             <%-- MODAL AGREGAR PROFORMA (SIN CAMBIOS) --%>
             <div id="proforma-modal" class="modal">
-                 <%-- Contenido del modal agregar proforma (No Modificado) --%>
-                 <div class="modal-content large-modal">
+                <%-- Contenido del modal agregar proforma (No Modificado) --%>
+                <div class="modal-content large-modal">
                     <div class="modal-header">
                         <h2><i class="fa-solid fa-file-invoice"></i> Nueva Proforma</h2>
                         <span class="close">&times;</span>
@@ -380,7 +499,7 @@
                                             <%= c.getDocu()%> - <%= c.getNombre()%>
                                         </option>
                                         <% }
-                                            } %>
+                                            }%>
                                     </select>
                                 </div>
                                 <div class="form-group small">
@@ -432,7 +551,7 @@
                                             <%= p.getNombre()%> - S/ <%= String.format("%.2f", p.getPrecio_unitario())%>
                                         </option>
                                         <% }
-                                            } %>
+                                            }%>
                                     </select>
                                 </div>
                                 <div class="form-group small">
@@ -492,39 +611,42 @@
                 </div>
             </div>
 
-            <%-- MODAL DE CAMBIO DE ESTADO MEJORADO --%>
-            <div id="modal-estado-proforma" class="modal">
-                <div class="modal-content small-modal">
+            <%-- INICIO DEL MODAL DE CAMBIO DE ESTADO MEJORADO --%>
+<div id="modal-estado-proforma" class="modal">
+    <div class="modal-content small-modal">
 
-                    <div class="modal-header">
-                        <h2><i class="fa-solid fa-pen-to-square"></i> Cambiar Estado</h2>
-                        <span class="close-estado">&times;</span>
-                    </div>
+        <div class="modal-header">
+            <h2><i class="fa-solid fa-pen-to-square"></i> Cambiar Estado</h2>
+            <span class="close-estado">&times;</span>
+        </div>
 
-                    <form action="<%= request.getContextPath()%>/GestionProformas" method="POST">
-                        <input type="hidden" name="accion" value="cambiarEstado">
-                        <input type="hidden" id="estado_id_proforma" name="idProforma">
+        <%-- AÑADIDO ID AL FORMULARIO PARA INTERCEPTAR EL ENVÍO --%>
+        <form id="form-cambiar-estado" action="<%= request.getContextPath()%>/GestionProformas" method="POST">
+            <input type="hidden" name="accion" value="cambiarEstado">
+            <input type="hidden" id="estado_id_proforma" name="idProforma">
 
-                        <div class="modal-section">
-                            <p><b>Proforma:</b> <span id="estado_display_id"></span></p>
+            <div class="modal-section">
+                <p><b>Proforma:</b> <span id="estado_display_id"></span></p>
 
-                            <label for="nuevo_estado">Selecciona el nuevo estado:</label>
-                            <select name="nuevoEstado" id="nuevo_estado" required>
-                                <option value="PENDIENTE">Pendiente</option>
-                                <option value="PAGADA_TOTAL">Pagada</option>
-                                <option value="PAGADA_PARCIAL">Pago Parcial</option>
-                                <option value="CANCELADA">Cancelada</option>
-                            </select>
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn-cancelar" onclick="cerrarModalEstado()">Cancelar</button>
-                            <button type="submit" class="btn-guardar">Guardar Estado</button>
-                        </div>
-                    </form>
-
-                </div>
+                <label for="nuevo_estado">Selecciona el nuevo estado:</label>
+                <select name="nuevoEstado" id="nuevo_estado" required>
+                    <option value="PENDIENTE">Pendiente</option>
+                    <option value="PAGADA_TOTAL">Pagada</option>
+                    <option value="PAGADA_PARCIAL">Pago Parcial</option>
+                    <option value="CANCELADA">Cancelada</option>
+                </select>
             </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancelar" onclick="cerrarModalEstado()">Cancelar</button>
+                <%-- CAMBIADO A type="submit" para que el event listener lo intercepte --%>
+                <button type="submit" class="btn-guardar" id="btn-guardar-estado">Guardar Estado</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+<%-- FIN DEL MODAL --%>
 
 
         </main>
@@ -538,37 +660,128 @@
 
 
         <script>
+    // URL base simulada para el contexto de la aplicación JSP.
+    // Reemplaza esto con tu ruta real si es necesario.
+    const CONTEXT_PATH = "<%= request.getContextPath() %>";
 
-            // Funciones específicas para el Modal de Estado
-            const modalEstado = document.getElementById("modal-estado-proforma");
-            const nuevoEstadoSelect = document.getElementById("nuevo_estado");
+    // Funciones específicas para el Modal de Estado
+    const modalEstado = document.getElementById("modal-estado-proforma");
+    const nuevoEstadoSelect = document.getElementById("nuevo_estado");
 
-            function abrirModalEstado(idProforma, estadoActual) {
-                document.getElementById('estado_id_proforma').value = idProforma;
-                document.getElementById('estado_display_id').textContent = '#' + idProforma; // Mostrar con #
+    function abrirModalEstado(idProforma, estadoActual) {
+        document.getElementById('estado_id_proforma').value = idProforma;
+        document.getElementById('estado_display_id').textContent = '#' + idProforma; // Mostrar con #
 
-                // Selecciona la opción actual
-                nuevoEstadoSelect.value = estadoActual;
+        // Selecciona la opción actual
+        nuevoEstadoSelect.value = estadoActual;
 
-                modalEstado.style.display = "block";
-            }
+        modalEstado.style.display = "block";
+    }
 
-            function cerrarModalEstado() {
-                modalEstado.style.display = "none";
-            }
+    function cerrarModalEstado() {
+        modalEstado.style.display = "none";
+    }
 
-            // Cierra el modal de estado al hacer clic en la X
-            document.querySelector(".close-estado").onclick = cerrarModalEstado;
+    // Cierra el modal de estado al hacer clic en la X
+    document.querySelector(".close-estado").onclick = cerrarModalEstado;
 
-            // Cierra el modal de estado al hacer clic fuera
-            window.onclick = e => {
-                if (e.target === modalEstado) {
+    // Cierra el modal de estado al hacer clic fuera
+    window.onclick = e => {
+        if (e.target === modalEstado) {
+            cerrarModalEstado();
+        } 
+        // Se asume que existe una función cerrarModal() y un modal "proforma-modal"
+        /* else if (e.target === document.getElementById("proforma-modal")) {
+            cerrarModal();
+        }
+        */
+    };
+    
+    // =======================================================================
+    // NUEVA LÓGICA PARA DESCARGAR PDF Y CERRAR MODAL AL GUARDAR ESTADO
+    // =======================================================================
+
+    /**
+     * Activa la descarga del PDF de la proforma usando la URL del servlet GenerarPDF.
+     * @param {string} idProforma - El ID de la proforma a descargar.
+     * @param {string} nuevoEstado - El estado que se usará para el PDF (aunque a menudo no es necesario, se mantiene por tu código original).
+     */
+    function descargarPdfInmediatamente(idProforma, nuevoEstado) {
+        // Construye la URL del servlet GenerarPDF
+        const urlPDF = CONTEXT_PATH + "/GenerarPDF?id=" + idProforma + "&estado=" + nuevoEstado;
+        
+        // Crea un elemento <a> oculto y simula un clic para forzar la descarga
+        const link = document.createElement('a');
+        link.href = urlPDF;
+        link.target = '_blank'; // Abrir en nueva pestaña
+        link.style.display = 'none'; 
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    
+    const formCambiarEstado = document.getElementById("form-cambiar-estado");
+
+    if (formCambiarEstado) {
+        formCambiarEstado.addEventListener('submit', async function(e) {
+            e.preventDefault(); // <-- **CLAVE:** Evita la recarga de la página por el formulario
+
+            // Obtiene los valores necesarios ANTES de la llamada asíncrona
+            const idProforma = document.getElementById('estado_id_proforma').value;
+            const nuevoEstado = document.getElementById('nuevo_estado').value;
+            
+            // Crea los datos del formulario (FormData) para el envío
+            const formData = new FormData(this);
+            
+            // Simula la llamada al servidor para cambiar el estado (Asíncrona)
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    // Si tu servlet devuelve una respuesta JSON, puedes añadir: headers: { 'Accept': 'application/json' }
+                });
+
+                if (response.ok || response.status === 200) {
+                    // 1. Estado cambiado con éxito
+                    
+                    // 2. Cerrar el modal
                     cerrarModalEstado();
-                } else if (e.target === document.getElementById("proforma-modal")) {
-                    cerrarModal();
+                    
+                    // 3. Descargar el PDF inmediatamente
+                    descargarPdfInmediatamente(idProforma, nuevoEstado);
+
+                    // Opcional: Si es necesario, refresca la tabla de proformas o la página.
+                    // location.reload(); 
+                } else {
+                    // Manejar el error del servidor (e.g., mostrar un mensaje de error en el UI)
+                    console.error("Error al cambiar el estado de la proforma. Código de estado:", response.status);
+                    alert("Hubo un error al actualizar el estado. Inténtalo de nuevo.");
                 }
-            };
-        </script>
+            } catch (error) {
+                console.error("Error de red durante el cambio de estado:", error);
+                alert("Error de conexión. Revisa tu red.");
+            }
+        });
+    }
+
+    // =======================================================================
+    // Lógica para descarga por parámetros de URL (Original, ahora no necesaria)
+    // Se mantiene comentada si quieres usar solo la lógica del submit.
+    // Si esta lógica ya no se usa, la puedes eliminar para limpiar el código.
+    // =======================================================================
+    /*
+    const urlParams = new URLSearchParams(window.location.search);
+    const descargarPDF = urlParams.get('descargarPDF');
+    const pdfId = urlParams.get('pdfId');
+    const pdfEstado = urlParams.get('pdfEstado');
+
+    if (descargarPDF === 'true' && pdfId && pdfEstado) {
+        descargarPdfInmediatamente(pdfId, pdfEstado);
+        // Limpiar los parámetros de la URL después de la descarga
+        history.replaceState(null, '', location.pathname + location.search.replace(/&descargarPDF=true&pdfId=[^&]*&pdfEstado=[^&]*/, ''));
+    }
+    */
+</script>
 
     </body>
 </html>

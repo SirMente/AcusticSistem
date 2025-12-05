@@ -39,7 +39,16 @@
 
             <div class="main">
                 <i class='bx bxs-notification'></i>
+
                 <img src="<%= request.getContextPath()%>/Imagenes/03.jpg" alt="Usuario">
+
+                <!-- 🔥 Botón de Cerrar Sesión -->
+                <a href="<%= request.getContextPath()%>/logout" 
+                   class="btn-logout" 
+                   style="margin-left: 15px; color: #e74c3c; font-weight: bold; text-decoration: none;">
+                    Cerrar sesión
+                </a>
+
                 <i class='bx bx-menu' id="menu-icon"></i>
             </div>
         </header>

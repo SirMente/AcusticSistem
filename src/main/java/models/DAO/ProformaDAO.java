@@ -361,4 +361,28 @@ public class ProformaDAO {
         return proforma;
     }
 
+    public boolean actualizarEstadoYRegistrarIngreso(String idProforma, String nuevoEstado) throws SQLException {
+        String sql = "UPDATE Proforma SET estado = ? WHERE id_proforma = ?";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, nuevoEstado);
+            ps.setString(2, idProforma);
+
+            int filasAfectadas = ps.executeUpdate();
+
+            // ⚡ Si se actualizó correctamente y el estado es PAGADA_TOTAL, registrar ingreso en finanzas
+            if (filasAfectadas > 0 && "PAGADA_TOTAL".equals(nuevoEstado)) {
+                FinanzaDAO finanzaDAO = new FinanzaDAO();
+                finanzaDAO.registrarProformaComoIngreso(idProforma);
+            }
+
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar el estado de la proforma " + idProforma + ": " + e.getMessage());
+            throw e;
+        }
+    }
+
 }

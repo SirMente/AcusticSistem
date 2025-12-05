@@ -66,9 +66,10 @@
             <nav>
                 <ul class="navbar" id="navbar">
                     <li><a href="<%= request.getContextPath()%>/dashboard">Inicio</a></li>
-                    <li class="active"><a href="<%= request.getContextPath()%>/Proveedores" >Proveedores</a></li>
+                    <li><a href="<%= request.getContextPath()%>/Proveedores" >Proveedores</a></li>
                     <li><a href="<%= request.getContextPath()%>/GestionClientes">Clientes</a></li>
                     <li><a href="<%= request.getContextPath()%>/ServicioController" >Servicios</a></li>
+                    <li><a href="<%= request.getContextPath()%>/GestionPersonal" >Personal</a></li>
                     <li><a href="<%= request.getContextPath()%>/InventarioController" class="active">Inventario</a></li>
                     <li><a href="<%= request.getContextPath()%>/Finanzas">Finanzas</a></li>
                     <li><a href="<%= request.getContextPath()%>/GestionProformas">Proformas</a></li>
@@ -78,7 +79,16 @@
 
             <div class="main">
                 <i class='bx bxs-notification'></i>
+
                 <img src="<%= request.getContextPath()%>/Imagenes/03.jpg" alt="Usuario">
+
+                <!-- 🔥 Botón de Cerrar Sesión -->
+                <a href="<%= request.getContextPath()%>/logout" 
+                   class="btn-logout" 
+                   style="margin-left: 15px; color: #e74c3c; font-weight: bold; text-decoration: none;">
+                    Cerrar sesión
+                </a>
+
                 <i class='bx bx-menu' id="menu-icon"></i>
             </div>
         </header>
@@ -93,8 +103,6 @@
             <%
                 String mensajeExito = request.getParameter("mensaje");
                 String mensajeError = (String) request.getAttribute("error");
-
-               
 
                 if (mensajeExito != null) {
                     String textoMensaje = "";
@@ -122,6 +130,7 @@
                 <thead>
                     <tr>
                         <th>Artículo</th>
+                        <th>Imagen</th>
                         <th>Marca / Modelo</th>
                         <th>Stock Actual</th>
                         <th>Stock Mínimo</th>
@@ -138,10 +147,18 @@
                     <tr <% if (producto.getCantidad() <= producto.getStock_minimo()) { %>class="low-stock"<% }%>>
                         <td>
                             <%= producto.getNombre()%></td>
+                        <td>
+                            <% if (producto.getImagen_url() != null) {%>
+                            <img src="<%= contextPath + "/" + producto.getImagen_url()%>" 
+                                 style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                            <% } else { %>
+                            No imagen
+                            <% }%>
+                        </td>
                         <td><%= producto.getMarca()%> / <%= producto.getModelo()%></td>
                         <td><%= producto.getCantidad()%>
                             <% if (producto.getCantidad() <= producto.getStock_minimo()) { %>
-                            <span class="stock-badge">STOCK BAJO</span>
+                            <span class="stock-badge">BAJO</span>
                             <% }%>
                         </td>
                         <td><%= producto.getStock_minimo()%></td>
@@ -200,13 +217,21 @@
                         <button class="close-btn" id="close-modal-btn" aria-label="Cerrar modal"><i class='bx bx-x'></i></button>
                     </div>
 
-                    <form class="modal-body" id="add-item-form" action="<%= contextPath%>/InventarioController" method="POST">
+                    <form class="modal-body" id="add-item-form" action="<%= contextPath%>/InventarioController" method="POST" enctype="multipart/form-data">
                         <input type="hidden" id="producto-id" name="id_producto" value="0">
                         <input type="hidden" name="accion_update" id="action-type" value="agregar">
                         <input type="hidden" id="imagen-url" name="imagen_url" value=""> 
 
                         <label for="articulo-nombre">Nombre del Artículo:</label>
                         <input type="text" id="articulo-nombre" name="nombre" required>
+
+                        <label for="imagen">Imagen del producto:</label>
+                        <input type="file" id="imagen" name="imagen" accept="image/*">
+
+                        <!-- PREVIEW DE IMAGEN -->
+                        <img id="preview-img" 
+                             src="" 
+                             style="display: none; width: 120px; height: 120px; object-fit: cover; margin-top: 10px; border-radius: 8px;">
 
                         <label for="articulo-marca">Marca:</label>
                         <input type="text" id="articulo-marca" name="marca" required>
@@ -248,6 +273,9 @@
             </div>
         </main>
 
+        <script>
+                            const contextPath = "<%= request.getContextPath()%>";
+        </script>
         <script src="<%= contextPath%>/JavaScript/Inventario.js"></script>
     </body>
 </html>
