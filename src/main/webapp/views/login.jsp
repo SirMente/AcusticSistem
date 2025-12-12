@@ -28,6 +28,18 @@
         <img src="<%= request.getContextPath() %>/Imagenes/01.jpg" alt="Imagen de Bienvenida">
         <h1><ins>BIENVENIDO USUARIO</ins></h1>
         <h3>Inicia Sesion con tu Cuenta </h3>
+
+        <%-- MENSAJE DE ERROR --%>
+        <%
+            String error = (String) request.getAttribute("error");
+            if (error != null && !error.isEmpty()) {
+        %>
+            <div class="error-message" style="color:red; text-align:center; margin-bottom:15px;">
+                <%= error %>
+            </div>
+        <%
+            }
+        %>
         
         <%-- Aquí se recomienda usar la etiqueta <form> --%>
         <form action="<%= request.getContextPath() %>/login" method="POST"> 

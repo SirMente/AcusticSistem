@@ -178,5 +178,21 @@ public class ClienteDAO {
 
         return cliente;
     }
+    
+    public int contarClientes() {
+    String sql = "SELECT COUNT(*) FROM clientes";
+    try (Connection con = ConexionBD.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+
 
 }

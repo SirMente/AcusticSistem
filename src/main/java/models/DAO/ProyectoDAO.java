@@ -12,11 +12,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.math.BigDecimal; 
+import java.math.BigDecimal;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
- * Clase Data Access Object (DAO) para manejar las operaciones CRUD
- * de la entidad Proyecto en la base de datos.
+ * Clase Data Access Object (DAO) para manejar las operaciones CRUD de la
+ * entidad Proyecto en la base de datos.
  */
 public class ProyectoDAO {
 
@@ -25,8 +27,9 @@ public class ProyectoDAO {
     ResultSet rs = null;
 
     /**
-     * Obtiene una lista de Proformas cuyo estado es 'PAGADA_PARCIAL'.
-     * Estas son las únicas proformas válidas para iniciar un proyecto.
+     * Obtiene una lista de Proformas cuyo estado es 'PAGADA_PARCIAL'. Estas son
+     * las únicas proformas válidas para iniciar un proyecto.
+     *
      * @return Lista de Proformas con estado 'PAGADA_PARCIAL'.
      */
     public List<Proforma> listarProformasDisponibles() {
@@ -43,13 +46,13 @@ public class ProyectoDAO {
                 Proforma p = new Proforma();
                 // idProforma es String
                 p.setIdProforma(rs.getString("id_proforma"));
-                
+
                 // Mapear el ruc_cliente (DB) al setIdCliente() (modelo Proforma)
                 p.setIdCliente(rs.getLong("ruc_cliente"));
-                
+
                 // Usar getBigDecimal() para coincidir con el tipo del modelo Proforma
                 p.setTotal(rs.getBigDecimal("total"));
-                
+
                 lista.add(p);
             }
         } catch (SQLException e) {
@@ -59,13 +62,15 @@ public class ProyectoDAO {
         }
         return lista;
     }
-    
+
     /**
-     * Obtiene una lista de todo el personal (empleados) para el select de encargado.
+     * Obtiene una lista de todo el personal (empleados) para el select de
+     * encargado.
+     *
      * @return Lista de Empleado.
      */
-    public List<Empleado> listarPersonal() { 
-        List<Empleado> lista = new ArrayList<>(); 
+    public List<Empleado> listarPersonal() {
+        List<Empleado> lista = new ArrayList<>();
         String sql = "SELECT dni, nombre, apellido FROM personal";
 
         try {
@@ -74,7 +79,7 @@ public class ProyectoDAO {
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                Empleado p = new Empleado(); 
+                Empleado p = new Empleado();
                 p.setDni(rs.getLong("dni"));
                 p.setNombre(rs.getString("nombre"));
                 p.setApellido(rs.getString("apellido"));
@@ -92,12 +97,12 @@ public class ProyectoDAO {
     public List<Proyecto> listarProyectos() {
         List<Proyecto> lista = new ArrayList<>();
         // Se unen las tablas Proyectos, Proforma (actualizada a RUC BIGINT) y Personal
-        String sql = "SELECT p.idProyecto, p.idProforma, p.nombreProyecto, p.fechaInicio, p.fechaFinEstimada, p.estado, " +
-                     "p.dniEncargado, pr.ruc_cliente, CONCAT(per.nombre, ' ', per.apellido) AS nombreEncargado " +
-                     "FROM proyectos p " +
-                     "JOIN Proforma pr ON p.idProforma = pr.id_proforma " +
-                     "JOIN personal per ON p.dniEncargado = per.dni " +
-                     "ORDER BY p.idProyecto DESC";
+        String sql = "SELECT p.idProyecto, p.idProforma, p.nombreProyecto, p.fechaInicio, p.fechaFinEstimada, p.estado, "
+                + "p.dniEncargado, pr.ruc_cliente, CONCAT(per.nombre, ' ', per.apellido) AS nombreEncargado "
+                + "FROM proyectos p "
+                + "JOIN Proforma pr ON p.idProforma = pr.id_proforma "
+                + "JOIN personal per ON p.dniEncargado = per.dni "
+                + "ORDER BY p.idProyecto DESC";
 
         try {
             con = ConexionBD.getConnection();
@@ -113,7 +118,7 @@ public class ProyectoDAO {
                 p.setFechaFinEstimada(rs.getDate("fechaFinEstimada"));
                 p.setEstado(rs.getString("estado"));
                 p.setDniEncargado(rs.getLong("dniEncargado"));
-                p.setRucCliente(rs.getLong("ruc_cliente")); 
+                p.setRucCliente(rs.getLong("ruc_cliente"));
                 p.setNombreEncargado(rs.getString("nombreEncargado"));
                 lista.add(p);
             }
@@ -128,17 +133,18 @@ public class ProyectoDAO {
     // --- Operación de Buscar Proyecto por ID (READ ONE) ---
     /**
      * Busca un proyecto específico por su ID.
+     *
      * @param idProyecto ID del proyecto a buscar.
      * @return El objeto Proyecto si se encuentra, o null.
      */
     public Proyecto buscarProyectoPorId(int idProyecto) {
         Proyecto proyecto = null;
-        String sql = "SELECT p.idProyecto, p.idProforma, p.nombreProyecto, p.fechaInicio, p.fechaFinEstimada, p.estado, " +
-                     "p.dniEncargado, pr.ruc_cliente, CONCAT(per.nombre, ' ', per.apellido) AS nombreEncargado " +
-                     "FROM proyectos p " +
-                     "JOIN Proforma pr ON p.idProforma = pr.id_proforma " +
-                     "JOIN personal per ON p.dniEncargado = per.dni " +
-                     "WHERE p.idProyecto = ?";
+        String sql = "SELECT p.idProyecto, p.idProforma, p.nombreProyecto, p.fechaInicio, p.fechaFinEstimada, p.estado, "
+                + "p.dniEncargado, pr.ruc_cliente, CONCAT(per.nombre, ' ', per.apellido) AS nombreEncargado "
+                + "FROM proyectos p "
+                + "JOIN Proforma pr ON p.idProforma = pr.id_proforma "
+                + "JOIN personal per ON p.dniEncargado = per.dni "
+                + "WHERE p.idProyecto = ?";
 
         try {
             con = ConexionBD.getConnection();
@@ -166,18 +172,17 @@ public class ProyectoDAO {
         return proyecto;
     }
 
-
     // --- Operación de Agregar (CREATE) ---
     public boolean agregarProyecto(Proyecto proyecto) {
         boolean agregado = false;
         // El estado por defecto es 'Planificacion'
         String sql = "INSERT INTO proyectos (idProforma, nombreProyecto, fechaInicio, fechaFinEstimada, estado, dniEncargado) VALUES (?, ?, ?, ?, 'Planificacion', ?)";
-        
+
         try {
             con = ConexionBD.getConnection();
             // Permite obtener las claves generadas automáticamente (como idProyecto)
             ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            
+
             ps.setString(1, proyecto.getIdProforma()); // String
             ps.setString(2, proyecto.getNombreProyecto());
             ps.setDate(3, proyecto.getFechaInicio());
@@ -203,11 +208,11 @@ public class ProyectoDAO {
         boolean actualizado = false;
         // Solo permitimos actualizar campos clave, incluyendo el estado
         String sql = "UPDATE proyectos SET idProforma=?, nombreProyecto=?, fechaInicio=?, fechaFinEstimada=?, estado=?, dniEncargado=? WHERE idProyecto=?";
-        
+
         try {
             con = ConexionBD.getConnection();
             ps = con.prepareStatement(sql);
-            
+
             ps.setString(1, proyecto.getIdProforma()); // String
             ps.setString(2, proyecto.getNombreProyecto());
             ps.setDate(3, proyecto.getFechaInicio());
@@ -228,7 +233,7 @@ public class ProyectoDAO {
         }
         return actualizado;
     }
-    
+
     // --- Operación de Eliminar (DELETE) ---
     public boolean eliminarProyecto(int idProyecto) {
         boolean eliminado = false;
@@ -237,7 +242,7 @@ public class ProyectoDAO {
             con = ConexionBD.getConnection();
             ps = con.prepareStatement(sql);
             ps.setInt(1, idProyecto);
-            
+
             int filasAfectadas = ps.executeUpdate();
             if (filasAfectadas > 0) {
                 eliminado = true;
@@ -254,11 +259,56 @@ public class ProyectoDAO {
     // --- Cierre de Recursos ---
     private void closeResources() {
         try {
-            if (rs != null) rs.close();
-            if (ps != null) ps.close();
-            if (con != null) con.close();
+            if (rs != null) {
+                rs.close();
+            }
+            if (ps != null) {
+                ps.close();
+            }
+            if (con != null) {
+                con.close();
+            }
         } catch (SQLException e) {
             System.err.println("Error al cerrar recursos: " + e.getMessage());
         }
     }
+
+    public int contarProyectos() {
+        String sql = "SELECT COUNT(*) FROM proyectos";
+        try (Connection con = ConexionBD.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public Map<String, Integer> contarPorEstado() {
+    Map<String, Integer> datos = new LinkedHashMap<>();
+
+    String sql = """
+        SELECT estado, COUNT(*) AS cantidad
+        FROM proyectos
+        GROUP BY estado;
+    """;
+
+    try (Connection con = ConexionBD.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            String estado = rs.getString("estado");
+            int cantidad = rs.getInt("cantidad");
+            datos.put(estado, cantidad);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return datos;
+}
+
 }

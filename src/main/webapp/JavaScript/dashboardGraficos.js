@@ -98,42 +98,50 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // ======================================================
-    // GRÁFICO: FINANZAS
-    // ======================================================
+    // ============ GRÁFICO FINANZAS ============
+const ingresosMes = JSON.parse(document.getElementById("graficoFinanzas").dataset.ingresos);
+const gastosMes   = JSON.parse(document.getElementById("graficoFinanzas").dataset.gastos);
 
-    new Chart(document.getElementById("graficoFinanzas"), {
-        type: "line",
-        data: {
-            labels: ["Ene","Feb","Mar","Abr","May","Jun"],
-            datasets: [{
+new Chart(document.getElementById("graficoFinanzas"), {
+    type: 'line',
+    data: {
+        labels: Object.keys(ingresosMes),
+        datasets: [
+            {
                 label: "Ingresos",
-                data: [4000, 5000, 4500, 7000, 6200, 8000],
-                borderColor: "#2ecc71",
-                tension: .4
-            },{
+                data: Object.values(ingresosMes),
+                borderWidth: 2,
+                borderColor: "green"
+            },
+            {
                 label: "Gastos",
-                data: [3000, 3200, 2900, 4100, 3800, 4200],
-                borderColor: "#e74c3c",
-                tension: .4
-            }]
+                data: Object.values(gastosMes),
+                borderWidth: 2,
+                borderColor: "red"
+            }
+        ]
+    }
+});
+
+// ============ GRÁFICO PROYECTOS ============
+// Gráfico Proyectos por Estado
+const proyectosCanvas = document.getElementById("graficoProyectos");
+const proyectosEstado = JSON.parse(proyectosCanvas.dataset.estados);
+
+new Chart(proyectosCanvas, {
+    type: 'pie',
+    data: {
+        labels: Object.keys(proyectosEstado),
+        datasets: [{
+            data: Object.values(proyectosEstado),
+            backgroundColor: ["#1e88e5", "#43a047", "#fb8c00", "#e53935"]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom' }
         }
-    });
-
-
-    // ======================================================
-    // GRÁFICO: PROYECTOS
-    // ======================================================
-
-    new Chart(document.getElementById("graficoProyectos"), {
-        type: "doughnut",
-        data: {
-            labels: ["Activos","En pausa","Finalizados"],
-            datasets: [{
-                backgroundColor: ["#3498db","#f1c40f","#2ecc71"],
-                data: [10,3,7]
-            }]
-        }
-    });
-
+    }
+});
 }); // FIN DEL DOMContentLoaded

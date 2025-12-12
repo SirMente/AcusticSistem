@@ -4,7 +4,9 @@ import models.Finanza;
 import utils.ConexionBD;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FinanzaDAO {
 
@@ -100,4 +102,54 @@ public class FinanzaDAO {
         e.printStackTrace();
     }
 }
+    
+    public Map<String, Double> obtenerIngresosMensuales() {
+    Map<String, Double> datos = new LinkedHashMap<>();
+
+    String sql = """
+        SELECT DATE_FORMAT(fecha, '%Y-%m') AS mes, SUM(monto) 
+        FROM finanzas 
+        WHERE tipo = 'INGRESO'
+        GROUP BY mes
+        ORDER BY mes;
+    """;
+
+    try (Connection con = ConexionBD.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            datos.put(rs.getString("mes"), rs.getDouble(2));
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return datos;
+}
+
+    public Map<String, Double> obtenerGastosMensuales() {
+    Map<String, Double> datos = new LinkedHashMap<>();
+
+    String sql = """
+        SELECT DATE_FORMAT(fecha, '%Y-%m') AS mes, SUM(monto) 
+        FROM finanzas 
+        WHERE tipo = 'GASTO'
+        GROUP BY mes
+        ORDER BY mes;
+    """;
+
+    try (Connection con = ConexionBD.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            datos.put(rs.getString("mes"), rs.getDouble(2));
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return datos;
+}
+
+    
 }

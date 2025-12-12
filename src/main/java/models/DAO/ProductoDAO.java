@@ -153,4 +153,20 @@ public class ProductoDAO {
                 rucProveedor
         );
     }
+    
+    public int contarStockBajo() {
+    String sql = "SELECT COUNT(*) FROM producto WHERE cantidad < 5";
+    try (Connection con = ConexionBD.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+
 }
