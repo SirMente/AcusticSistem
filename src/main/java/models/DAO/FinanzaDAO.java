@@ -107,8 +107,8 @@ public class FinanzaDAO {
     Map<String, Double> datos = new LinkedHashMap<>();
 
     String sql = """
-        SELECT DATE_FORMAT(fecha, '%Y-%m') AS mes, SUM(monto) 
-        FROM finanzas 
+        SELECT TO_CHAR(fecha, 'YYYY-MM') AS mes, SUM(monto) AS total
+        FROM finanzas
         WHERE tipo = 'INGRESO'
         GROUP BY mes
         ORDER BY mes;
@@ -119,7 +119,7 @@ public class FinanzaDAO {
          ResultSet rs = ps.executeQuery()) {
 
         while (rs.next()) {
-            datos.put(rs.getString("mes"), rs.getDouble(2));
+            datos.put(rs.getString("mes"), rs.getDouble("total"));
         }
     } catch (Exception e) {
         e.printStackTrace();
@@ -130,9 +130,10 @@ public class FinanzaDAO {
     public Map<String, Double> obtenerGastosMensuales() {
     Map<String, Double> datos = new LinkedHashMap<>();
 
+    // SQL compatible con PostgreSQL
     String sql = """
-        SELECT DATE_FORMAT(fecha, '%Y-%m') AS mes, SUM(monto) 
-        FROM finanzas 
+        SELECT TO_CHAR(fecha, 'YYYY-MM') AS mes, SUM(monto) AS total
+        FROM finanzas
         WHERE tipo = 'GASTO'
         GROUP BY mes
         ORDER BY mes;
@@ -143,13 +144,12 @@ public class FinanzaDAO {
          ResultSet rs = ps.executeQuery()) {
 
         while (rs.next()) {
-            datos.put(rs.getString("mes"), rs.getDouble(2));
+            datos.put(rs.getString("mes"), rs.getDouble("total"));
         }
     } catch (Exception e) {
         e.printStackTrace();
     }
     return datos;
 }
-
     
 }
