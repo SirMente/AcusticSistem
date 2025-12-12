@@ -109,7 +109,7 @@ public class FinanzaDAO {
     String sql = """
         SELECT TO_CHAR(fecha, 'YYYY-MM') AS mes, SUM(monto) AS total
         FROM finanzas
-        WHERE tipo = 'INGRESO'
+        WHERE UPPER(tipo) = 'INGRESO'
         GROUP BY mes
         ORDER BY mes;
     """;
@@ -134,7 +134,7 @@ public class FinanzaDAO {
     String sql = """
         SELECT TO_CHAR(fecha, 'YYYY-MM') AS mes, SUM(monto) AS total
         FROM finanzas
-        WHERE tipo = 'GASTO'
+        WHERE UPPER(tipo) = 'GASTO'
         GROUP BY mes
         ORDER BY mes;
     """;
